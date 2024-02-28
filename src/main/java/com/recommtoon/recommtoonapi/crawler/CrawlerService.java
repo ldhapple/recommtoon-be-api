@@ -61,6 +61,65 @@ public class CrawlerService {
         }
     }
 
+    public void newWebtoonCrawling() {
+        /*
+            신작 웹툰 크롤링
+            1. 각 웹툰 클릭
+            2. 데이터 수집
+            3. 데이터가 테이블에 이미 존재하는지 중복체크.
+            3. 데이터 업데이트.
+            4. 뒤로 가기
+            5. 반복 -> 신규웹툰 데이터 수집이 끝나면 종료.
+        */
+        WebDriver driver = setupWebDriver();
+
+        try {
+            driver.get(NAVER_WEBTOON_TAB_NEW);
+            scrollToEndAndWaitBody(driver);
+            crawlingWebtoons(driver);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            driver.quit();
+        }
+    }
+
+    private void crawlingWebtoons(WebDriver driver) {
+        for (int j = 0; j < driver.findElements(By.className(ITEM.getClassName())).size(); j++) {
+            List<WebElement> webtoonElements = driver.findElements(By.className(ITEM.getClassName()));
+            webtoonElements.get(j).click();
+            waitBody(driver);
+
+            String titleId = getTitleId(driver);
+
+            if (titleId.isEmpty()) {
+                //성인 웹툰인 경우 로그인창으로 넘어감. -> titleId를 구할 수 없음.
+                driver.navigate().back();
+                continue;
+            }
+
+            String imgUrl = getImgUrl(driver);
+            String title = getTitle(driver);
+            String author = getAuthor(driver);
+            Set<Genre> genres = getGenres(driver);
+
+            Days days = getDays(driver);
+            String story = getStory(driver);
+
+            if (webtoonRepository.findByTitleId(titleId).isEmpty()) {
+                Webtoon webtoonData = Webtoon.createWebtoon(titleId, title, author, genres, days, story, imgUrl);
+                webtoonRepository.save(webtoonData);
+            }
+
+            driver.navigate().back();
+        }
+    }
+
+    private static Days getDays(WebDriver driver) {
+        WebElement dayElement = driver.findElement(By.className(DAYS.getClassName()));
+        return Days.isMatched(dayElement.getText().split("\\s*[.∙]\\s*")[0].trim());
+    }
+
     private void crawlingWeeklyWebtoons(WebDriver driver) {
         List<WebElement> elementsWithDays = driver.findElements(By.className(DAYS_TAB.getClassName()));
 

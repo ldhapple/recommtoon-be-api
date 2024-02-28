@@ -17,4 +17,15 @@ public enum Days {
     Days(String title) {
         this.title = title;
     }
+
+    public static Days isMatched(String days) {
+
+        for (Days day : Days.values()) {
+            if (day.getTitle().equals(days)) {
+                return day;
+            }
+        }
+
+        return null;
+    }
 }
