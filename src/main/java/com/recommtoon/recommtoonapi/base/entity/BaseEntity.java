@@ -1,4 +1,4 @@
-package com.recommtoon.recommtoonapi.base;
+package com.recommtoon.recommtoonapi.base.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

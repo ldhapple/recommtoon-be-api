@@ -1,6 +1,6 @@
 package com.recommtoon.recommtoonapi.webtoon.entity;
 
-import com.recommtoon.recommtoonapi.base.BaseEntity;
+import com.recommtoon.recommtoonapi.base.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
