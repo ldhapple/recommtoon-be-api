@@ -1,5 +1,6 @@
 package com.recommtoon.recommtoonapi.webtoon.entity;
 
+import com.recommtoon.recommtoonapi.base.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -12,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Webtoon {
+public class Webtoon extends BaseEntity {
 
     @Id @GeneratedValue
     private Long id;
