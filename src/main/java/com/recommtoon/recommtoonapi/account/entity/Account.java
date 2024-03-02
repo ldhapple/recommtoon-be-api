@@ -4,6 +4,7 @@ import com.recommtoon.recommtoonapi.base.entity.BaseEntity;
 import com.recommtoon.recommtoonapi.mbti.entity.Mbti;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -27,7 +28,17 @@ public class Account extends BaseEntity {
 
     private String realName;
     private String username;
+    private String nickName;
     private String password;
 
-
+    @Builder
+    public Account(String realName, String username, String nickName, String password, Gender gender, Mbti mbti, Role role) {
+        this.realName = realName;
+        this.username = username;
+        this.nickName = nickName;
+        this.password = password;
+        this.gender = gender;
+        this.mbti = mbti;
+        this.role = role;
+    }
 }
