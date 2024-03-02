@@ -33,7 +33,7 @@ public class AccountService {
         Account account = Account.builder()
                 .realName(registerDto.getRealName())
                 .username(registerDto.getUsername())
-                .nickName(registerDto.getNickName())
+                .nickName(registerDto.getNickname())
                 .password(registerDto.getPassword())
                 .gender(registerDto.getGender())
                 .mbti(mbti)

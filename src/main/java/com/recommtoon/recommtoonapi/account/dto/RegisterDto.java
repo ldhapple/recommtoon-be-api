@@ -16,7 +16,7 @@ public class RegisterDto {
     private String username;
 
     @NotNull
-    private String nickName;
+    private String nickname;
 
     @NotNull
     private String password;
