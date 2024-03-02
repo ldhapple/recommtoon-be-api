@@ -15,4 +15,12 @@ public class Mbti {
 
     @Enumerated(EnumType.STRING)
     private MbtiType mbtiType;
+
+    public static Mbti create(MbtiType mbtiType) {
+        Mbti mbti = new Mbti();
+
+        mbti.mbtiType = mbtiType;
+
+        return mbti;
+    }
 }
