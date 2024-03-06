@@ -9,32 +9,35 @@ import com.recommtoon.recommtoonapi.mbti.entity.MbtiType;
 import com.recommtoon.recommtoonapi.mbti.repository.MbtiRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-@Transactional
+@Transactional()
 @RequiredArgsConstructor
 public class AccountService {
 
     private final AccountRepository accountRepository;
     private final MbtiRepository mbtiRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public boolean isUsernameDuplicate(String username) {
-        return accountRepository.findByUsername(username) == null;
+        return !accountRepository.existsByUsername(username);
     }
 
     public boolean isNickNameDuplicate(String nickName) {
-        return accountRepository.findByNickName(nickName) == null;
+        return !accountRepository.existsByNickName(nickName);
     }
 
     public Account register(RegisterDto registerDto) {
+        String encodedPassword = bCryptPasswordEncoder.encode(registerDto.getPassword());
         Mbti mbti = mbtiRepository.findByMbtiType(MbtiType.from(registerDto.getMbtiType()));
 
         Account account = Account.builder()
                 .realName(registerDto.getRealName())
                 .username(registerDto.getUsername())
                 .nickName(registerDto.getNickname())
-                .password(registerDto.getPassword())
+                .password(encodedPassword)
                 .gender(registerDto.getGender())
                 .mbti(mbti)
                 .role(Role.USER)
