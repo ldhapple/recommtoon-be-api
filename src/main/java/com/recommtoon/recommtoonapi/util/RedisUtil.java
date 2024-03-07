@@ -22,4 +22,16 @@ public class RedisUtil {
     public void deleteRefreshToken(String username) {
         redisTemplate.delete(username);
     }
+
+    public void saveAccessToken(String username, String accessToken, long duration) {
+        redisTemplate.opsForValue().set("access_token:" + username, accessToken, duration, TimeUnit.SECONDS);
+    }
+
+    public String getAccessToken(String username) {
+        return redisTemplate.opsForValue().get("access_token:" + username);
+    }
+
+    public void deleteAccessToken(String username) {
+        redisTemplate.delete("access_token:" + username);
+    }
 }

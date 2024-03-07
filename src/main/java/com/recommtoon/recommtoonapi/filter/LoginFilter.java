@@ -7,6 +7,7 @@ import com.recommtoon.recommtoonapi.util.JwtUtil;
 import com.recommtoon.recommtoonapi.util.RedisUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -65,9 +66,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String accessToken = jwtUtil.createAccessToken(username, role, 60 * 60 * 10L);
         String refreshToken = jwtUtil.createRefreshToken(username, 60 * 60 * 10000L);
 
-        redisUtil.saveRefreshToken(username, refreshToken, 60 * 60 * 10000L);
+        Cookie cookie = new Cookie("refreshToken", refreshToken);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(60 * 60 * 24 * 30);
+//        cookie.setSecure(true);
+        response.addCookie(cookie);
 
         response.addHeader("Authorization", "Bearer " + accessToken);
+
+        redisUtil.saveRefreshToken(username, refreshToken, 60 * 60 * 10000L);
     }
 
     @Override

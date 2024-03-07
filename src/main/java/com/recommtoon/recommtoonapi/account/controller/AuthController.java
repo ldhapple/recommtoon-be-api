@@ -3,8 +3,10 @@ package com.recommtoon.recommtoonapi.account.controller;
 import com.recommtoon.recommtoonapi.account.entity.Role;
 import com.recommtoon.recommtoonapi.util.JwtUtil;
 import com.recommtoon.recommtoonapi.util.RedisUtil;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,20 +25,38 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        String accessToken = authHeader.split(" ")[1];
-        String username = jwtUtil.getUsername(accessToken);
+        String refreshToken = null;
 
-        String storedRefreshToken = redisUtil.getRefreshToken(username);
-
-        if (jwtUtil.isExpired(storedRefreshToken)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("만료된 Refresh 토큰입니다.");
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    refreshToken = cookie.getValue();
+                }
+            }
         }
 
-        String newAccessToken = jwtUtil.createAccessToken(username, "USER", 60 * 60 * 10L);
+        if (refreshToken == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Refresh 토큰이 유효하지 않습니다.");
+        }
+
+        String username = jwtUtil.getUsername(refreshToken);
+        String storedRefreshToken = redisUtil.getRefreshToken(username);
+
+        if (!refreshToken.equals(storedRefreshToken) || jwtUtil.isExpired(refreshToken)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Refresh 토큰이 유효하지 않습니다.");
+        }
 
         HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set("Authorization", "Bearer " + newAccessToken);
+        String cachedAccessToken = redisUtil.getAccessToken(username);
+
+        if (cachedAccessToken == null || jwtUtil.isExpired(cachedAccessToken)) {
+            String newAccessToken = jwtUtil.createAccessToken(username, "USER", 60 * 60 * 10L);
+            redisUtil.saveAccessToken(username, newAccessToken, 60 * 60 * 10L); // 새 Access 토큰 캐싱
+            responseHeaders.set("Authorization", "Bearer " + newAccessToken);
+        } else {
+            responseHeaders.set("Authorization", "Bearer " + cachedAccessToken);
+        }
+
         return ResponseEntity.ok().headers(responseHeaders).body("Access 토큰이 갱신되었습니다.");
     }
 
@@ -49,6 +69,7 @@ public class AuthController {
             String username = jwtUtil.getUsername(token);
 
             redisUtil.deleteRefreshToken(username);
+            redisUtil.deleteAccessToken(username);
             return ResponseEntity.ok().body("로그아웃이 완료되었습니다.");
         }
 
