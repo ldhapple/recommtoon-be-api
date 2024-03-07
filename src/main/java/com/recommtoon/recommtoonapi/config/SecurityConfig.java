@@ -3,6 +3,7 @@ package com.recommtoon.recommtoonapi.config;
 import com.recommtoon.recommtoonapi.filter.JwtFilter;
 import com.recommtoon.recommtoonapi.filter.LoginFilter;
 import com.recommtoon.recommtoonapi.util.JwtUtil;
+import com.recommtoon.recommtoonapi.util.RedisUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,15 +24,18 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JwtUtil jwtUtil;
+    private final RedisUtil redisUtil;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JwtUtil jwtUtil) {
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JwtUtil jwtUtil,
+                          RedisUtil redisUtil) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
+        this.redisUtil = redisUtil;
     }
 
     @Bean
@@ -41,8 +45,9 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        LoginFilter customLoginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil);
-        customLoginFilter.setFilterProcessesUrl("/api/login");
+        LoginFilter customLoginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil,
+                redisUtil);
+        customLoginFilter.setFilterProcessesUrl("/api/auth/login");
 
         //disable
         http
@@ -53,7 +58,8 @@ public class SecurityConfig {
         //경로별 인가
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/api/login", "/", "/api/account/register", "/api/account/checkDuplicate/**").permitAll()
+                        .requestMatchers("/", "/api/account/register",
+                                "/api/account/checkDuplicate/**", "/api/auth/login").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated());
         //세션 설정
