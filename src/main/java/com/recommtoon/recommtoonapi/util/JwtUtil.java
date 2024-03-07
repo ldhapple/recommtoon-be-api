@@ -38,12 +38,21 @@ public class JwtUtil {
                 .getExpiration().before(new Date());
     }
 
-    public String createJwt(String username, String role, Long expiredMs) {
+    public String createAccessToken(String username, String role, Long expiredMs) {
         return Jwts.builder()
                 .claim("username", username)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiredMs))
+                .signWith(secretKey)
+                .compact();
+    }
+
+    public String createRefreshToken(String username, Long expirationMs) {
+        return Jwts.builder()
+                .claim("username", username)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(secretKey)
                 .compact();
     }

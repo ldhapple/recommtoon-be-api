@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.recommtoon.recommtoonapi.account.dto.CustomUserDetails;
 import com.recommtoon.recommtoonapi.account.dto.LoginDto;
 import com.recommtoon.recommtoonapi.util.JwtUtil;
+import com.recommtoon.recommtoonapi.util.RedisUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,9 +26,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final RedisUtil redisUtil;
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+            throws AuthenticationException {
 
         try {
             LoginDto loginForm = new ObjectMapper().readValue(request.getInputStream(), LoginDto.class);
@@ -37,7 +40,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             String username = loginForm.getUsername();
             String password = loginForm.getPassword();
 
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password, null);
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password,
+                    null);
 
             return authenticationManager.authenticate(authToken);
         } catch (IOException e) {
@@ -46,7 +50,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     }
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
+                                            Authentication authResult) throws IOException, ServletException {
         CustomUserDetails customUserDetails = (CustomUserDetails) authResult.getPrincipal();
 
         String username = customUserDetails.getUsername();
@@ -57,13 +62,17 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt(username, role, 60*60*10L);
+        String accessToken = jwtUtil.createAccessToken(username, role, 60 * 60 * 10L);
+        String refreshToken = jwtUtil.createRefreshToken(username, 60 * 60 * 10000L);
 
-        response.addHeader("Authorization", "Bearer " + token);
+        redisUtil.saveRefreshToken(username, refreshToken, 60 * 60 * 10000L);
+
+        response.addHeader("Authorization", "Bearer " + accessToken);
     }
 
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+                                              AuthenticationException failed) throws IOException, ServletException {
         response.setStatus(401);
     }
 }
