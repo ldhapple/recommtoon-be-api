@@ -2,6 +2,7 @@ package com.recommtoon.recommtoonapi.config;
 
 import com.recommtoon.recommtoonapi.filter.JwtFilter;
 import com.recommtoon.recommtoonapi.filter.LoginFilter;
+import com.recommtoon.recommtoonapi.util.CookieUtil;
 import com.recommtoon.recommtoonapi.util.JwtUtil;
 import com.recommtoon.recommtoonapi.util.RedisUtil;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +26,7 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JwtUtil jwtUtil;
     private final RedisUtil redisUtil;
+    private final CookieUtil cookieUtil;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -32,10 +34,11 @@ public class SecurityConfig {
     }
 
     public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JwtUtil jwtUtil,
-                          RedisUtil redisUtil) {
+                          RedisUtil redisUtil, CookieUtil cookieUtil) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
         this.redisUtil = redisUtil;
+        this.cookieUtil = cookieUtil;
     }
 
     @Bean
@@ -46,7 +49,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         LoginFilter customLoginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil,
-                redisUtil);
+                redisUtil, cookieUtil);
         customLoginFilter.setFilterProcessesUrl("/api/auth/login");
 
         //disable

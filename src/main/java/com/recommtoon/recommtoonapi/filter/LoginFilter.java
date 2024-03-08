@@ -3,6 +3,7 @@ package com.recommtoon.recommtoonapi.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.recommtoon.recommtoonapi.account.dto.CustomUserDetails;
 import com.recommtoon.recommtoonapi.account.dto.LoginDto;
+import com.recommtoon.recommtoonapi.util.CookieUtil;
 import com.recommtoon.recommtoonapi.util.JwtUtil;
 import com.recommtoon.recommtoonapi.util.RedisUtil;
 import jakarta.servlet.FilterChain;
@@ -28,6 +29,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final RedisUtil redisUtil;
+    private final CookieUtil cookieUtil;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
@@ -66,15 +68,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String accessToken = jwtUtil.createAccessToken(username, role, 60 * 60 * 10L);
         String refreshToken = jwtUtil.createRefreshToken(username, 60 * 60 * 10000L);
 
-        Cookie cookie = new Cookie("refreshToken", refreshToken);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(60 * 60 * 24 * 30);
-//        cookie.setSecure(true);
+        Cookie cookie = cookieUtil.createCookie("refreshToken", refreshToken);
         response.addCookie(cookie);
 
         response.addHeader("Authorization", "Bearer " + accessToken);
 
+        redisUtil.saveAccessToken(username, accessToken, 60 * 60 * 10L);
         redisUtil.saveRefreshToken(username, refreshToken, 60 * 60 * 10000L);
     }
 
