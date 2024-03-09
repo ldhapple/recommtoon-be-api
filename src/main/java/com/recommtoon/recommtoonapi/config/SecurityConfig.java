@@ -1,10 +1,12 @@
 package com.recommtoon.recommtoonapi.config;
 
+import com.recommtoon.recommtoonapi.account.handler.CustomAuthenticationEntryPoint;
 import com.recommtoon.recommtoonapi.filter.JwtFilter;
 import com.recommtoon.recommtoonapi.filter.LoginFilter;
 import com.recommtoon.recommtoonapi.util.CookieUtil;
 import com.recommtoon.recommtoonapi.util.JwtUtil;
 import com.recommtoon.recommtoonapi.util.RedisUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,32 +15,25 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JwtUtil jwtUtil;
     private final RedisUtil redisUtil;
     private final CookieUtil cookieUtil;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
-    }
-
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JwtUtil jwtUtil,
-                          RedisUtil redisUtil, CookieUtil cookieUtil) {
-        this.authenticationConfiguration = authenticationConfiguration;
-        this.jwtUtil = jwtUtil;
-        this.redisUtil = redisUtil;
-        this.cookieUtil = cookieUtil;
     }
 
     @Bean
@@ -62,7 +57,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/", "/api/account/register",
-                                "/api/account/checkDuplicate/**", "/api/auth/login").permitAll()
+                                "/api/account/checkDuplicate/**", "/api/auth/login", "/api/auth/refresh").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated());
         //세션 설정
@@ -70,9 +65,14 @@ public class SecurityConfig {
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
+        //인증 실패 시 403 대신 401 응답 반환하도록
+        http
+                .exceptionHandling(exceptionHandling ->
+                        exceptionHandling.authenticationEntryPoint(customAuthenticationEntryPoint));
+
         //필터 등록
         http
-                .addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class)
+                .addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(customLoginFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

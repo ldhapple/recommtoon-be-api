@@ -3,7 +3,10 @@ package com.recommtoon.recommtoonapi.account.controller;
 import com.recommtoon.recommtoonapi.util.CookieUtil;
 import com.recommtoon.recommtoonapi.util.JwtUtil;
 import com.recommtoon.recommtoonapi.util.RedisUtil;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -39,15 +42,25 @@ public class AuthController {
         HttpHeaders responseHeaders = new HttpHeaders();
         String cachedAccessToken = redisUtil.getAccessToken(username);
 
-        if (cachedAccessToken == null || jwtUtil.isExpired(cachedAccessToken)) {
-            String newAccessToken = jwtUtil.createAccessToken(username, "USER", 60 * 60 * 10L);
-            redisUtil.saveAccessToken(username, newAccessToken, 60 * 60 * 10L); // 새 Access 토큰 캐싱
-            responseHeaders.set("Authorization", "Bearer " + newAccessToken);
-        } else {
-            responseHeaders.set("Authorization", "Bearer " + cachedAccessToken);
+        boolean cachedTokenExpired = false;
+
+        try {
+            cachedTokenExpired = jwtUtil.isExpired(cachedAccessToken);
+        } catch (ExpiredJwtException e) {
+            cachedTokenExpired = true;
         }
 
-        return ResponseEntity.ok().headers(responseHeaders).body("Access 토큰이 갱신되었습니다.");
+        Map<String, String> responseBody = new HashMap<>();
+        if (cachedAccessToken == null || cachedTokenExpired) {
+            String newAccessToken = jwtUtil.createAccessToken(username, "USER", 60 * 60 * 10L);
+            redisUtil.saveAccessToken(username, newAccessToken, 60 * 60 * 10L); // 새 Access 토큰 캐싱
+            responseBody.put("accessToken", newAccessToken);
+        } else {
+            responseBody.put("accessToken", cachedAccessToken);
+        }
+
+
+        return ResponseEntity.ok().headers(responseHeaders).body(responseBody);
     }
 
     @PostMapping("/logout")
