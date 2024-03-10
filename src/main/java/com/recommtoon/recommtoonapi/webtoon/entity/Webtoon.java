@@ -37,7 +37,6 @@ public class Webtoon extends BaseEntity {
     private String story;
 
     private String imgSrc;
-    private Long likeCount;
 
     public static Webtoon createWebtoon(String titleId, String title, String author, Set<Genre> genres,
                                         Days days, String story, String imgSrc) {
@@ -50,7 +49,6 @@ public class Webtoon extends BaseEntity {
         webtoon.days = days;
         webtoon.story = story;
         webtoon.imgSrc = imgSrc;
-        webtoon.likeCount = 0L;
 
         return webtoon;
     }
