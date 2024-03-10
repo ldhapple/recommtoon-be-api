@@ -57,7 +57,8 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/", "/api/account/register",
-                                "/api/account/checkDuplicate/**", "/api/auth/login", "/api/auth/refresh").permitAll()
+                                "/api/account/checkDuplicate/**", "/api/auth/login", "/api/auth/refresh", "/api/board/**",
+                                "/api/comments/*").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated());
         //세션 설정
