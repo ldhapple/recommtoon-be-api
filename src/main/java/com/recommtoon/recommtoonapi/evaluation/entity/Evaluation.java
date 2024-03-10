@@ -5,6 +5,7 @@ import com.recommtoon.recommtoonapi.base.entity.BaseEntity;
 import com.recommtoon.recommtoonapi.webtoon.entity.Webtoon;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,4 +26,15 @@ public class Evaluation extends BaseEntity {
     private Webtoon webtoon;
 
     private Double rating;
+
+    @Builder
+    public Evaluation(Account account, Webtoon webtoon, Double rating) {
+        this.account = account;
+        this.webtoon = webtoon;
+        this.rating = rating;
+    }
+
+    public void updateRating(Double rating) {
+        this.rating = rating;
+    }
 }
