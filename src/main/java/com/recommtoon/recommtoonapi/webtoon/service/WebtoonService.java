@@ -4,6 +4,7 @@ import com.recommtoon.recommtoonapi.account.entity.Account;
 import com.recommtoon.recommtoonapi.account.repository.AccountRepository;
 import com.recommtoon.recommtoonapi.evaluation.repository.EvaluationRepository;
 import com.recommtoon.recommtoonapi.webtoon.dto.RatingWebtoonDto;
+import com.recommtoon.recommtoonapi.webtoon.dto.WebtoonBoardDto;
 import com.recommtoon.recommtoonapi.webtoon.entity.Webtoon;
 import com.recommtoon.recommtoonapi.webtoon.repository.CustomWebtoonRepository;
 import com.recommtoon.recommtoonapi.webtoon.repository.WebtoonRepository;
@@ -38,5 +39,18 @@ public class WebtoonService {
         return webtoonRepository.findById(id).stream()
                 .findFirst()
                 .orElseThrow();
+    }
+
+    public WebtoonBoardDto getWebtoonById(Long webtoonId) {
+        Webtoon webtoon = webtoonRepository.findById(webtoonId)
+                .orElseThrow();
+
+        return WebtoonBoardDto.builder()
+                .title(webtoon.getTitle())
+                .link("https://comic.naver.com/webtoon/list?titleId=" + webtoon.getTitleId())
+                .author(webtoon.getAuthor())
+                .story(webtoon.getStory())
+                .imgSrc(webtoon.getImgSrc())
+                .build();
     }
 }
