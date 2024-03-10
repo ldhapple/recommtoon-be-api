@@ -34,8 +34,8 @@ public class EvaluationController {
 
     @GetMapping("/card")
     public ResponseEntity<?> getRatingCards(@RequestParam(defaultValue = "0") int page,
-                                                        @RequestParam(defaultValue = "16") int size) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                                                        @RequestParam(defaultValue = "16") int size,
+                                            Authentication authentication) {
         String loginUsername = authentication.getName();
 
         Page<RatingWebtoonDto> webtoons = webtoonService.getNoEvaluateCards(loginUsername, page, size);
@@ -45,9 +45,9 @@ public class EvaluationController {
 
     @GetMapping("/count")
     public ResponseEntity<Long> evaluationCount(Authentication authentication) {
-        String username = authentication.getName();
+        String loginUsername = authentication.getName();
 
-        Long evaluatedCount = evaluationService.getEvaluatedCount(username);
+        Long evaluatedCount = evaluationService.getEvaluatedCount(loginUsername);
 
         return ResponseEntity.ok(evaluatedCount);
     }
