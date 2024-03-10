@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface WebtoonRepository extends JpaRepository<Webtoon, Long> {
+public interface WebtoonRepository extends JpaRepository<Webtoon, Long>, CustomWebtoonRepository {
     @Query("select w from Webtoon w where w.titleId = :titleId")
     List<Webtoon> findByTitleId(@Param("titleId") String titleId);
 }
