@@ -8,6 +8,7 @@ import com.recommtoon.recommtoonapi.mbti.entity.Mbti;
 import com.recommtoon.recommtoonapi.mbti.entity.MbtiType;
 import com.recommtoon.recommtoonapi.mbti.repository.MbtiRepository;
 import jakarta.transaction.Transactional;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -44,5 +45,15 @@ public class AccountService {
                 .build();
 
         return accountRepository.save(account);
+    }
+
+    public Account findById(Long id) {
+        return accountRepository.findById(id).stream()
+                .findFirst()
+                .orElseThrow();
+    }
+
+    public Account findByUsername(String username) {
+        return accountRepository.findByUsernameWithMbti(username);
     }
 }
