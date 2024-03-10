@@ -17,9 +17,9 @@ public class BoardController {
 
     private final WebtoonService webtoonService;
 
-    @GetMapping("/{webtoonId}")
-    public ResponseEntity<WebtoonBoardDto> getWebtoonDetalis(@PathVariable Long webtoonId) {
-        WebtoonBoardDto webtoonDetails = webtoonService.getWebtoonById(webtoonId);
+    @GetMapping("/{titleId}")
+    public ResponseEntity<WebtoonBoardDto> getWebtoonDetalis(@PathVariable String titleId) {
+        WebtoonBoardDto webtoonDetails = webtoonService.getWebtoonByTitleId(titleId);
 
         return ResponseEntity.ok(webtoonDetails);
     }

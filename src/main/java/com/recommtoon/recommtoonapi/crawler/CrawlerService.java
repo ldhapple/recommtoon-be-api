@@ -106,7 +106,7 @@ public class CrawlerService {
             Days days = getDays(driver);
             String story = getStory(driver);
 
-            if (webtoonRepository.findByTitleId(titleId).isEmpty()) {
+            if (webtoonRepository.findByTitleId(titleId) == null) {
                 Webtoon webtoonData = Webtoon.createWebtoon(titleId, title, author, genres, days, story, imgUrl);
                 webtoonRepository.save(webtoonData);
             }

@@ -23,19 +23,19 @@ public class CommentsController {
 
     private final CommentsService commentsService;
 
-    @GetMapping("/{webtoonId}")
-    public ResponseEntity<List<CommentResponseDto>> getComments(@PathVariable Long webtoonId) {
-        List<CommentResponseDto> comments = commentsService.getCommentsByWebtoonId(webtoonId);
+    @GetMapping("/{titleId}")
+    public ResponseEntity<List<CommentResponseDto>> getComments(@PathVariable String titleId) {
+        List<CommentResponseDto> comments = commentsService.getCommentsByTitleId(titleId);
 
         return ResponseEntity.ok(comments);
     }
 
-    @PostMapping("/new/{webtoonId}")
-    public ResponseEntity<CommentResponseDto> createComment(@PathVariable Long webtoonId,
+    @PostMapping("/new/{titleId}")
+    public ResponseEntity<CommentResponseDto> createComment(@PathVariable String titleId,
                                                             @RequestBody CommentRequestDto commentRequestDto,
                                                             Authentication authentication) {
         String username = authentication.getName();
-        CommentResponseDto createdComment = commentsService.createComment(commentRequestDto, webtoonId, username);
+        CommentResponseDto createdComment = commentsService.createComment(commentRequestDto, titleId, username);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdComment);
     }

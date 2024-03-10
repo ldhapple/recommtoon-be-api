@@ -41,9 +41,8 @@ public class WebtoonService {
                 .orElseThrow();
     }
 
-    public WebtoonBoardDto getWebtoonById(Long webtoonId) {
-        Webtoon webtoon = webtoonRepository.findById(webtoonId)
-                .orElseThrow();
+    public WebtoonBoardDto getWebtoonByTitleId(String titleId) {
+        Webtoon webtoon = webtoonRepository.findByTitleId(titleId);
 
         return WebtoonBoardDto.builder()
                 .title(webtoon.getTitle())

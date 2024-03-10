@@ -25,8 +25,10 @@ public class CommentsService {
     private final WebtoonRepository webtoonRepository;
     private final TimeConvertUtil timeConvertUtil;
 
-    public List<CommentResponseDto> getCommentsByWebtoonId(Long webtoonId) {
-        List<Comments> webtoonComments = commentsRepository.findByWebtoonId(webtoonId);
+    public List<CommentResponseDto> getCommentsByTitleId(String titleId) {
+        Webtoon webtoon = webtoonRepository.findByTitleId(titleId);
+
+        List<Comments> webtoonComments = commentsRepository.findByWebtoonId(webtoon.getId());
 
         return webtoonComments.stream()
                 .map(this::convertToResponseDto)
@@ -39,9 +41,9 @@ public class CommentsService {
         comment.updateLikeCount();
     }
 
-    public CommentResponseDto createComment(CommentRequestDto commentRequestDto, Long webtoonId, String username) {
+    public CommentResponseDto createComment(CommentRequestDto commentRequestDto, String titleId, String username) {
         Account loginAccount = accountRepository.findByUsername(username);
-        Webtoon webtoon = webtoonRepository.findById(webtoonId).orElseThrow();
+        Webtoon webtoon = webtoonRepository.findByTitleId(titleId);
 
         Comments newComment = Comments.builder()
                 .account(loginAccount)
