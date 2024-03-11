@@ -6,6 +6,7 @@ import com.recommtoon.recommtoonapi.comment.dto.CommentRequestDto;
 import com.recommtoon.recommtoonapi.comment.dto.CommentResponseDto;
 import com.recommtoon.recommtoonapi.comment.entity.Comments;
 import com.recommtoon.recommtoonapi.comment.repository.CommentsRepository;
+import com.recommtoon.recommtoonapi.exception.NotFoundException;
 import com.recommtoon.recommtoonapi.util.TimeConvertUtil;
 import com.recommtoon.recommtoonapi.webtoon.entity.Webtoon;
 import com.recommtoon.recommtoonapi.webtoon.repository.WebtoonRepository;
@@ -26,9 +27,11 @@ public class CommentsService {
     private final TimeConvertUtil timeConvertUtil;
 
     public List<CommentResponseDto> getCommentsByTitleId(String titleId) {
-        Webtoon webtoon = webtoonRepository.findByTitleId(titleId);
+        Webtoon webtoon = webtoonRepository.findByTitleId(titleId)
+                .orElseThrow(() -> new NotFoundException("웹툰 정보가 존재하지 않습니다."));
 
-        List<Comments> webtoonComments = commentsRepository.findByWebtoonId(webtoon.getId());
+        List<Comments> webtoonComments = commentsRepository.findByWebtoonId(webtoon.getId())
+                .orElseThrow(() -> new NotFoundException("댓글 정보가 존재하지 않습니다."));
 
         return webtoonComments.stream()
                 .map(this::convertToResponseDto)
@@ -36,14 +39,17 @@ public class CommentsService {
     }
 
     public void incrementLikeCount(Long commentId) {
-        Comments comment = commentsRepository.findById(commentId).orElseThrow();
+        Comments comment = commentsRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException("댓글 정보가 존재하지 않습니다."));
 
         comment.updateLikeCount();
     }
 
     public CommentResponseDto createComment(CommentRequestDto commentRequestDto, String titleId, String username) {
-        Account loginAccount = accountRepository.findByUsername(username);
-        Webtoon webtoon = webtoonRepository.findByTitleId(titleId);
+        Account loginAccount = accountRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("계정 정보가 존재하지 않습니다."));
+        Webtoon webtoon = webtoonRepository.findByTitleId(titleId)
+                .orElseThrow(() -> new NotFoundException("웹툰 정보가 존재하지 않습니다."));
 
         Comments newComment = Comments.builder()
                 .account(loginAccount)

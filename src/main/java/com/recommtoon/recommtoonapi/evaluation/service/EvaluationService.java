@@ -4,6 +4,7 @@ import com.recommtoon.recommtoonapi.account.entity.Account;
 import com.recommtoon.recommtoonapi.account.repository.AccountRepository;
 import com.recommtoon.recommtoonapi.evaluation.entity.Evaluation;
 import com.recommtoon.recommtoonapi.evaluation.repository.EvaluationRepository;
+import com.recommtoon.recommtoonapi.exception.NotFoundException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,8 @@ public class EvaluationService {
     }
 
     public Long getEvaluatedCount(String username) {
-        Account loginAccount = accountRepository.findByUsername(username);
+        Account loginAccount = accountRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("계정 정보가 존재하지 않습니다."));
 
         return evaluationRepository.countByAccountId(loginAccount.getId());
     }

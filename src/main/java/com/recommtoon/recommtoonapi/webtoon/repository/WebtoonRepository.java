@@ -1,6 +1,7 @@
 package com.recommtoon.recommtoonapi.webtoon.repository;
 
 import com.recommtoon.recommtoonapi.webtoon.entity.Webtoon;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,5 +12,5 @@ import java.util.List;
 @Repository
 public interface WebtoonRepository extends JpaRepository<Webtoon, Long>, CustomWebtoonRepository {
     @Query("select w from Webtoon w where w.titleId = :titleId")
-    Webtoon findByTitleId(@Param("titleId") String titleId);
+    Optional<Webtoon> findByTitleId(@Param("titleId") String titleId);
 }

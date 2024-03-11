@@ -14,7 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-@Transactional()
+@Transactional
 @RequiredArgsConstructor
 public class AccountService {
 
@@ -45,12 +45,6 @@ public class AccountService {
                 .build();
 
         return accountRepository.save(account);
-    }
-
-    public Account findById(Long id) {
-        return accountRepository.findById(id).stream()
-                .findFirst()
-                .orElseThrow();
     }
 
     public Account findByUsername(String username) {

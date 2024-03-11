@@ -18,7 +18,8 @@ public class LoginService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        Account findAccount = accountRepository.findByUsername(username);
+        Account findAccount = accountRepository.findByUsername(username)
+                .orElse(null);
 
         if (findAccount != null) {
             return new LoginDto(findAccount);

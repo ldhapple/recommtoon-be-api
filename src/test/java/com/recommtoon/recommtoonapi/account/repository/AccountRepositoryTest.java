@@ -32,8 +32,10 @@ class AccountRepositoryTest {
 
     @Test
     void findByUsername() {
-        Account findAccount = accountRepository.findByUsername("abcd1234");
-        Account noAccount = accountRepository.findByUsername("1234");
+        Account findAccount = accountRepository.findByUsername("abcd1234")
+                .orElse(null);
+        Account noAccount = accountRepository.findByUsername("1234")
+                .orElse(null);
 
         assertThat(findAccount.getUsername()).isEqualTo("abcd1234");
         assertThat(noAccount).isNull();
@@ -41,8 +43,10 @@ class AccountRepositoryTest {
 
     @Test
     void findByNickName() {
-        Account findAccount = accountRepository.findByNickName("닉네임");
-        Account noAccount = accountRepository.findByUsername("1234");
+        Account findAccount = accountRepository.findByNickName("닉네임")
+                .orElse(null);
+        Account noAccount = accountRepository.findByUsername("1234")
+                .orElse(null);
 
         assertThat(findAccount.getNickName()).isEqualTo("닉네임");
         assertThat(noAccount).isNull();
