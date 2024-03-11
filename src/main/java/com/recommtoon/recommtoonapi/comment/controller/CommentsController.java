@@ -4,6 +4,8 @@ import com.recommtoon.recommtoonapi.comment.dto.CommentRequestDto;
 import com.recommtoon.recommtoonapi.comment.dto.CommentResponseDto;
 import com.recommtoon.recommtoonapi.comment.entity.Comments;
 import com.recommtoon.recommtoonapi.comment.service.CommentsService;
+import com.recommtoon.recommtoonapi.util.ApiUtil;
+import com.recommtoon.recommtoonapi.util.ApiUtil.ApiSuccess;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,26 +26,26 @@ public class CommentsController {
     private final CommentsService commentsService;
 
     @GetMapping("/{titleId}")
-    public ResponseEntity<List<CommentResponseDto>> getComments(@PathVariable String titleId) {
+    public ApiSuccess<List<CommentResponseDto>> getComments(@PathVariable String titleId) {
         List<CommentResponseDto> comments = commentsService.getCommentsByTitleId(titleId);
 
-        return ResponseEntity.ok(comments);
+        return ApiUtil.success(comments);
     }
 
     @PostMapping("/new/{titleId}")
-    public ResponseEntity<CommentResponseDto> createComment(@PathVariable String titleId,
+    public ApiSuccess<CommentResponseDto> createComment(@PathVariable String titleId,
                                                             @RequestBody CommentRequestDto commentRequestDto,
                                                             Authentication authentication) {
         String username = authentication.getName();
         CommentResponseDto createdComment = commentsService.createComment(commentRequestDto, titleId, username);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdComment);
+        return ApiUtil.success(createdComment);
     }
 
     @PostMapping("/like/{commentId}")
-    public ResponseEntity<Void> thumbsUp(@PathVariable Long commentId) {
+    public ApiSuccess<String> thumbsUp(@PathVariable Long commentId) {
         commentsService.incrementLikeCount(commentId);
 
-        return ResponseEntity.ok().build();
+        return ApiUtil.success("좋아요 성공");
     }
 }

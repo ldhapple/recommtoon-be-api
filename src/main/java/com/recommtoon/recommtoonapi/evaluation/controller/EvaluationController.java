@@ -5,6 +5,8 @@ import com.recommtoon.recommtoonapi.account.service.AccountService;
 import com.recommtoon.recommtoonapi.evaluation.dto.EvaluationRequestDto;
 import com.recommtoon.recommtoonapi.evaluation.entity.Evaluation;
 import com.recommtoon.recommtoonapi.evaluation.service.EvaluationService;
+import com.recommtoon.recommtoonapi.util.ApiUtil;
+import com.recommtoon.recommtoonapi.util.ApiUtil.ApiSuccess;
 import com.recommtoon.recommtoonapi.webtoon.dto.RatingWebtoonDto;
 import com.recommtoon.recommtoonapi.webtoon.entity.Webtoon;
 import com.recommtoon.recommtoonapi.webtoon.service.WebtoonService;
@@ -33,27 +35,27 @@ public class EvaluationController {
     private final EvaluationService evaluationService;
 
     @GetMapping("/card")
-    public ResponseEntity<?> getRatingCards(@RequestParam(defaultValue = "0") int page,
-                                                        @RequestParam(defaultValue = "16") int size,
-                                            Authentication authentication) {
+    public ApiSuccess<?> getRatingCards(@RequestParam(defaultValue = "0") int page,
+                                        @RequestParam(defaultValue = "16") int size,
+                                        Authentication authentication) {
         String loginUsername = authentication.getName();
 
         Page<RatingWebtoonDto> webtoons = webtoonService.getNoEvaluateCards(loginUsername, page, size);
 
-        return ResponseEntity.ok(webtoons);
+        return ApiUtil.success(webtoons);
     }
 
     @GetMapping("/count")
-    public ResponseEntity<Long> evaluationCount(Authentication authentication) {
+    public ApiSuccess<Long> evaluationCount(Authentication authentication) {
         String loginUsername = authentication.getName();
 
         Long evaluatedCount = evaluationService.getEvaluatedCount(loginUsername);
 
-        return ResponseEntity.ok(evaluatedCount);
+        return ApiUtil.success(evaluatedCount);
     }
 
     @PostMapping
-    public ResponseEntity<Evaluation> evaluate(@RequestBody EvaluationRequestDto evaluationRequest, Authentication authentication) {
+    public ApiSuccess<Evaluation> evaluate(@RequestBody EvaluationRequestDto evaluationRequest, Authentication authentication) {
         Account account = accountService.findByUsername(authentication.getName());
         Webtoon webtoon = webtoonService.findById(evaluationRequest.getWebtoonId());
 
@@ -65,6 +67,6 @@ public class EvaluationController {
 
         Evaluation savedEvaluation = evaluationService.saveEvaluation(evaluation);
 
-        return ResponseEntity.ok(savedEvaluation);
+        return ApiUtil.success(savedEvaluation);
     }
 }

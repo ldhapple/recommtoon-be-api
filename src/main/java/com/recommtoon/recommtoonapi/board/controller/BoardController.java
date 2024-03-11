@@ -1,5 +1,7 @@
 package com.recommtoon.recommtoonapi.board.controller;
 
+import com.recommtoon.recommtoonapi.util.ApiUtil;
+import com.recommtoon.recommtoonapi.util.ApiUtil.ApiSuccess;
 import com.recommtoon.recommtoonapi.webtoon.dto.WebtoonBoardDto;
 import com.recommtoon.recommtoonapi.webtoon.entity.Webtoon;
 import com.recommtoon.recommtoonapi.webtoon.service.WebtoonService;
@@ -18,9 +20,9 @@ public class BoardController {
     private final WebtoonService webtoonService;
 
     @GetMapping("/{titleId}")
-    public ResponseEntity<WebtoonBoardDto> getWebtoonDetalis(@PathVariable String titleId) {
+    public ApiSuccess<WebtoonBoardDto> getWebtoonDetalis(@PathVariable String titleId) {
         WebtoonBoardDto webtoonDetails = webtoonService.getWebtoonByTitleId(titleId);
 
-        return ResponseEntity.ok(webtoonDetails);
+        return ApiUtil.success(webtoonDetails);
     }
 }

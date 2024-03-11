@@ -3,6 +3,8 @@ package com.recommtoon.recommtoonapi.account.controller;
 import com.recommtoon.recommtoonapi.account.dto.RegisterDto;
 import com.recommtoon.recommtoonapi.account.entity.Account;
 import com.recommtoon.recommtoonapi.account.service.AccountService;
+import com.recommtoon.recommtoonapi.util.ApiUtil;
+import com.recommtoon.recommtoonapi.util.ApiUtil.ApiSuccess;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +18,7 @@ public class AccountController {
     private final AccountService accountService;
 
     @GetMapping("/checkDuplicate/{field}/{value}")
-    public ResponseEntity<Boolean> checkDuplicate(@PathVariable String field, @PathVariable String value) {
+    public ApiSuccess<Boolean> checkDuplicate(@PathVariable String field, @PathVariable String value) {
         boolean isDuplicate = false;
 
         if (field.equals("username")) {
@@ -25,12 +27,14 @@ public class AccountController {
             isDuplicate = accountService.isNickNameDuplicate(value);
         }
 
-        return ResponseEntity.ok(isDuplicate);
+
+        return ApiUtil.success(isDuplicate);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerAccount(@Valid @RequestBody RegisterDto registerDto) {
+    public ApiSuccess<?> registerAccount(@Valid @RequestBody RegisterDto registerDto) {
         Account savedAccount = accountService.register(registerDto);
-        return ResponseEntity.ok(savedAccount);
+
+        return ApiUtil.success(savedAccount);
     }
 }
