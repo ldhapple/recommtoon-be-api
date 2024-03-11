@@ -1,6 +1,6 @@
 package com.recommtoon.recommtoonapi.config;
 
-import com.recommtoon.recommtoonapi.account.handler.JwtNotAuthenticatedHandler;
+import com.recommtoon.recommtoonapi.exception.handler.JwtNotAuthenticatedHandler;
 import com.recommtoon.recommtoonapi.filter.JwtFilter;
 import com.recommtoon.recommtoonapi.filter.LoginFilter;
 import com.recommtoon.recommtoonapi.util.CookieUtil;

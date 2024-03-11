@@ -1,4 +1,4 @@
-package com.recommtoon.recommtoonapi.account.handler;
+package com.recommtoon.recommtoonapi.exception.handler;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
