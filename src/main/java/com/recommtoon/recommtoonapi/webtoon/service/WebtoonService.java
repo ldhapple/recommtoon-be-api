@@ -12,7 +12,9 @@ import com.recommtoon.recommtoonapi.webtoon.repository.WebtoonRepository;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -27,14 +29,18 @@ import org.springframework.transaction.annotation.Transactional;
 public class WebtoonService {
 
     private final WebtoonRepository webtoonRepository;
-    private final AccountRepository accountRepository;
+    private final WebtoonCacheService webtoonCacheService;
 
-    public Page<RatingWebtoonDto> getNoEvaluateCards(String loginUsername, int page, int size) {
-        Account loginUser = accountRepository.findByUsername(loginUsername)
-                .orElseThrow(() -> new NotFoundException("계정 정보가 존재하지 않습니다."));
-        Pageable pageable = PageRequest.of(page, size, Sort.unsorted());
 
-        return webtoonRepository.findWebtoonsNotEvaluatedAndShuffled(loginUser.getId(), pageable);
+    public Page<RatingWebtoonDto> getNoEvaluateCards(String loginUsername, int page,
+                                                     int size) {
+        List<RatingWebtoonDto> allNotEvaluatedWebtoons = webtoonCacheService.getCachedNotEvaluatedWebtoon(loginUsername);
+
+        int fromIndex = page * size;
+        int toIndex = Math.min((page + 1) * size, allNotEvaluatedWebtoons.size());
+        List<RatingWebtoonDto> subList = allNotEvaluatedWebtoons.subList(fromIndex, toIndex);
+
+        return new PageImpl<>(subList, PageRequest.of(page, size), allNotEvaluatedWebtoons.size());
     }
 
     public Webtoon findById(Long id) {

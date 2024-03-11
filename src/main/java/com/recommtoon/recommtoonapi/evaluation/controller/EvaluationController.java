@@ -37,7 +37,8 @@ public class EvaluationController {
     @GetMapping("/card")
     public ApiSuccess<?> getRatingCards(@RequestParam(defaultValue = "0") int page,
                                         @RequestParam(defaultValue = "16") int size,
-                                        Authentication authentication) {
+                                        Authentication authentication
+    ) {
         String loginUsername = authentication.getName();
 
         Page<RatingWebtoonDto> webtoons = webtoonService.getNoEvaluateCards(loginUsername, page, size);
@@ -55,7 +56,8 @@ public class EvaluationController {
     }
 
     @PostMapping
-    public ApiSuccess<Evaluation> evaluate(@RequestBody EvaluationRequestDto evaluationRequest, Authentication authentication) {
+    public ApiSuccess<Evaluation> evaluate(@RequestBody EvaluationRequestDto evaluationRequest,
+                                           Authentication authentication) {
         Account account = accountService.findByUsername(authentication.getName());
         Webtoon webtoon = webtoonService.findById(evaluationRequest.getWebtoonId());
 

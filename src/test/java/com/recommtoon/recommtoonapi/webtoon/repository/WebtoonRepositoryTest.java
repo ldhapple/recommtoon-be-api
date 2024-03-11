@@ -31,7 +31,8 @@ class WebtoonRepositoryTest {
 
         webtoonRepository.save(webtoon);
 
-        Webtoon findWebtoon = webtoonRepository.findByTitleId(titleId);
+        Webtoon findWebtoon = webtoonRepository.findByTitleId(titleId)
+                .orElse(null);
 
         assertThat(webtoon).isEqualTo(findWebtoon);
     }

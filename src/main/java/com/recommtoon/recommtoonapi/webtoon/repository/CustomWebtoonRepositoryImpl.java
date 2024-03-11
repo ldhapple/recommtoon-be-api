@@ -21,7 +21,7 @@ public class CustomWebtoonRepositoryImpl implements CustomWebtoonRepository {
     }
 
     @Override
-    public Page<RatingWebtoonDto> findWebtoonsNotEvaluatedAndShuffled(Long userId, Pageable pageable) {
+    public List<RatingWebtoonDto> findWebtoonsNotEvaluated(Long userId) {
 
         QEvaluation qEvaluation = QEvaluation.evaluation;
         QWebtoon qWebtoon = QWebtoon.webtoon;
@@ -42,12 +42,14 @@ public class CustomWebtoonRepositoryImpl implements CustomWebtoonRepository {
 
         //offset, limit 사용 X
 
-        Collections.shuffle(content);
+//        Collections.shuffle(content);
+//
+//        int fromIndex = (int) pageable.getOffset();
+//        int toIndex = Math.min(fromIndex + pageable.getPageSize(), content.size());
+//        List<RatingWebtoonDto> subList = content.subList(fromIndex, toIndex);
+//
+//        return new PageImpl<>(subList, pageable, content.size());
 
-        int fromIndex = (int) pageable.getOffset();
-        int toIndex = Math.min(fromIndex + pageable.getPageSize(), content.size());
-        List<RatingWebtoonDto> subList = content.subList(fromIndex, toIndex);
-
-        return new PageImpl<>(subList, pageable, content.size());
+        return content;
     }
 }
