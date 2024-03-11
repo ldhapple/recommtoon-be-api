@@ -1,5 +1,8 @@
 package com.recommtoon.recommtoonapi.account.controller;
 
+import com.recommtoon.recommtoonapi.account.service.AuthService;
+import com.recommtoon.recommtoonapi.util.ApiUtil;
+import com.recommtoon.recommtoonapi.util.ApiUtil.ApiSuccess;
 import com.recommtoon.recommtoonapi.util.CookieUtil;
 import com.recommtoon.recommtoonapi.util.JwtUtil;
 import com.recommtoon.recommtoonapi.util.RedisUtil;
@@ -20,63 +23,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final JwtUtil jwtUtil;
-    private final RedisUtil redisUtil;
     private final CookieUtil cookieUtil;
+    private final AuthService authService;
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
+    public ApiSuccess<?> refreshAccessToken(HttpServletRequest request) {
 
         String refreshToken = cookieUtil.getCookieValue("refreshToken", request);
-        String username = jwtUtil.getUsername(refreshToken);
-        String storedRefreshToken = redisUtil.getRefreshToken(username);
+        String storedRefreshToken = authService.getStoredRefreshToken(refreshToken);
+        authService.validateRefreshToken(refreshToken, storedRefreshToken);
 
-        if (refreshToken == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Refresh 토큰이 유효하지 않습니다.");
-        }
+        String cachedAccessToken = authService.getCachedAccessToken(refreshToken);
+        boolean cachedTokenExpired = authService.checkAccessTokenExpiration(cachedAccessToken);
 
-        if (!refreshToken.equals(storedRefreshToken) || jwtUtil.isExpired(refreshToken)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Refresh 토큰이 유효하지 않습니다.");
-        }
+        Map<String, String> responseBody = authService.refreshAccessToken(refreshToken, cachedAccessToken,
+                cachedTokenExpired);
 
-        HttpHeaders responseHeaders = new HttpHeaders();
-        String cachedAccessToken = redisUtil.getAccessToken(username);
-
-        boolean cachedTokenExpired = false;
-
-        try {
-            cachedTokenExpired = jwtUtil.isExpired(cachedAccessToken);
-        } catch (ExpiredJwtException e) {
-            cachedTokenExpired = true;
-        }
-
-        Map<String, String> responseBody = new HashMap<>();
-        if (cachedAccessToken == null || cachedTokenExpired) {
-            String newAccessToken = jwtUtil.createAccessToken(username, "USER", 60 * 60 * 10L);
-            redisUtil.saveAccessToken(username, newAccessToken, 60 * 60 * 10L); // 새 Access 토큰 캐싱
-            responseBody.put("accessToken", newAccessToken);
-        } else {
-            responseBody.put("accessToken", cachedAccessToken);
-        }
-
-
-        return ResponseEntity.ok().headers(responseHeaders).body(responseBody);
+        return ApiUtil.success(responseBody);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
+    public ApiSuccess<?> logout(HttpServletRequest request) {
+        String accessToken = request.getHeader("Authorization");
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.split(" ")[1];
-            String username = jwtUtil.getUsername(token);
+        authService.validateAccessToken(accessToken);
+        authService.deleteCachedTokens(accessToken);
 
-            redisUtil.deleteRefreshToken(username);
-            redisUtil.deleteAccessToken(username);
-
-            return ResponseEntity.ok().body("로그아웃이 완료되었습니다.");
-        }
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 되어있지 않습니다.");
+        return ApiUtil.success("로그아웃이 완료되었습니다.");
     }
 }
