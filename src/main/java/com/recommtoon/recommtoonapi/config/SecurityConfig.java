@@ -1,6 +1,6 @@
 package com.recommtoon.recommtoonapi.config;
 
-import com.recommtoon.recommtoonapi.account.handler.CustomAuthenticationEntryPoint;
+import com.recommtoon.recommtoonapi.account.handler.JwtNotAuthenticatedHandler;
 import com.recommtoon.recommtoonapi.filter.JwtFilter;
 import com.recommtoon.recommtoonapi.filter.LoginFilter;
 import com.recommtoon.recommtoonapi.util.CookieUtil;
@@ -28,7 +28,7 @@ public class SecurityConfig {
     private final JwtUtil jwtUtil;
     private final RedisUtil redisUtil;
     private final CookieUtil cookieUtil;
-    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final JwtNotAuthenticatedHandler jwtNotAuthenticatedHandler;
 
 
     @Bean
@@ -69,7 +69,7 @@ public class SecurityConfig {
         //인증 실패 시 403 대신 401 응답 반환하도록
         http
                 .exceptionHandling(exceptionHandling ->
-                        exceptionHandling.authenticationEntryPoint(customAuthenticationEntryPoint));
+                        exceptionHandling.authenticationEntryPoint(jwtNotAuthenticatedHandler));
 
         //필터 등록
         http
