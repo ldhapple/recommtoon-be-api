@@ -1,7 +1,6 @@
 package com.recommtoon.recommtoonapi.filter;
 
-import com.fasterxml.jackson.annotation.JacksonInject;
-import com.recommtoon.recommtoonapi.account.dto.CustomUserDetails;
+import com.recommtoon.recommtoonapi.account.dto.LoginDto;
 import com.recommtoon.recommtoonapi.account.entity.Account;
 import com.recommtoon.recommtoonapi.account.entity.Role;
 import com.recommtoon.recommtoonapi.util.JwtUtil;
@@ -10,7 +9,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -54,10 +52,10 @@ public class JwtFilter extends OncePerRequestFilter {
                 .role(Role.from(role))
                 .build();
 
-        CustomUserDetails customUserDetails = new CustomUserDetails(account);
+        LoginDto loginDto = new LoginDto(account);
 
-        Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null,
-                customUserDetails.getAuthorities());
+        Authentication authToken = new UsernamePasswordAuthenticationToken(loginDto, null,
+                loginDto.getAuthorities());
 
         SecurityContextHolder.getContext().setAuthentication(authToken);
 

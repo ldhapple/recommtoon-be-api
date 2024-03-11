@@ -1,8 +1,8 @@
 package com.recommtoon.recommtoonapi.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.recommtoon.recommtoonapi.account.dto.CustomUserDetails;
 import com.recommtoon.recommtoonapi.account.dto.LoginDto;
+import com.recommtoon.recommtoonapi.account.dto.LoginFormDto;
 import com.recommtoon.recommtoonapi.util.CookieUtil;
 import com.recommtoon.recommtoonapi.util.JwtUtil;
 import com.recommtoon.recommtoonapi.util.RedisUtil;
@@ -36,7 +36,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             throws AuthenticationException {
 
         try {
-            LoginDto loginForm = new ObjectMapper().readValue(request.getInputStream(), LoginDto.class);
+            LoginFormDto loginForm = new ObjectMapper().readValue(request.getInputStream(), LoginFormDto.class);
 
 //            String username = obtainUsername(request);
 //            String password = obtainPassword(request);
@@ -55,9 +55,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
                                             Authentication authResult) throws IOException, ServletException {
-        CustomUserDetails customUserDetails = (CustomUserDetails) authResult.getPrincipal();
+        LoginDto loginDto = (LoginDto) authResult.getPrincipal();
 
-        String username = customUserDetails.getUsername();
+        String username = loginDto.getUsername();
 
         Collection<? extends GrantedAuthority> authorities = authResult.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
