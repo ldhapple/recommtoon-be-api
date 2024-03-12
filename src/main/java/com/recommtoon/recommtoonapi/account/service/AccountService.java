@@ -8,6 +8,7 @@ import com.recommtoon.recommtoonapi.mbti.entity.Mbti;
 import com.recommtoon.recommtoonapi.mbti.entity.MbtiType;
 import com.recommtoon.recommtoonapi.mbti.repository.MbtiRepository;
 import jakarta.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -33,6 +34,7 @@ public class AccountService {
     public Account register(RegisterDto registerDto) {
         String encodedPassword = bCryptPasswordEncoder.encode(registerDto.getPassword());
         Mbti mbti = mbtiRepository.findByMbtiType(MbtiType.from(registerDto.getMbtiType()));
+        int age = calculateAge(registerDto.getBirthYear());
 
         Account account = Account.builder()
                 .realName(registerDto.getRealName())
@@ -42,6 +44,7 @@ public class AccountService {
                 .gender(registerDto.getGender())
                 .mbti(mbti)
                 .role(Role.USER)
+                .age(age)
                 .build();
 
         return accountRepository.save(account);
@@ -49,5 +52,9 @@ public class AccountService {
 
     public Account findByUsername(String username) {
         return accountRepository.findByUsernameWithMbti(username);
+    }
+
+    private int calculateAge(int birthYear) {
+        return LocalDate.now().getYear() - birthYear;
     }
 }

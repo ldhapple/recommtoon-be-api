@@ -21,6 +21,8 @@ public class RegisterDto {
     @NotNull
     private String password;
 
+    private int birthYear;
+
     private Gender gender;
     private String mbtiType;
 }

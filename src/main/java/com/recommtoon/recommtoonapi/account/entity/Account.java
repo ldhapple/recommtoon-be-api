@@ -30,9 +30,10 @@ public class Account extends BaseEntity {
     private String username;
     private String nickName;
     private String password;
+    private int age;
 
     @Builder
-    public Account(String realName, String username, String nickName, String password, Gender gender, Mbti mbti, Role role) {
+    public Account(String realName, String username, String nickName, String password, Gender gender, Mbti mbti, Role role, int age) {
         this.realName = realName;
         this.username = username;
         this.nickName = nickName;
@@ -40,5 +41,6 @@ public class Account extends BaseEntity {
         this.gender = gender;
         this.mbti = mbti;
         this.role = role;
+        this.age = age;
     }
 }
