@@ -6,11 +6,13 @@ import com.recommtoon.recommtoonapi.evaluation.repository.EvaluationRepository;
 import com.recommtoon.recommtoonapi.exception.NotFoundException;
 import com.recommtoon.recommtoonapi.webtoon.dto.RatingWebtoonDto;
 import com.recommtoon.recommtoonapi.webtoon.dto.WebtoonBoardDto;
+import com.recommtoon.recommtoonapi.webtoon.entity.Genre;
 import com.recommtoon.recommtoonapi.webtoon.entity.Webtoon;
 import com.recommtoon.recommtoonapi.webtoon.repository.CustomWebtoonRepository;
 import com.recommtoon.recommtoonapi.webtoon.repository.WebtoonRepository;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -59,6 +61,9 @@ public class WebtoonService {
                 .author(webtoon.getAuthor())
                 .story(webtoon.getStory())
                 .imgSrc(webtoon.getImgSrc())
+                .genres(webtoon.getGenres().stream()
+                        .map(Genre::getKoreanName)
+                        .collect(Collectors.toSet()))
                 .build();
     }
 }
