@@ -17,6 +17,7 @@ import com.recommtoon.recommtoonapi.recommendation.util.RecommendationConst;
 import com.recommtoon.recommtoonapi.recommendation.util.SimilarityCaclulator;
 import com.recommtoon.recommtoonapi.webtoon.entity.Webtoon;
 import com.recommtoon.recommtoonapi.webtoon.repository.WebtoonRepository;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -66,18 +67,29 @@ public class RecommendationService {
             return getPreviousRecommendWebtoons(userRecommendation);
         }
 
-        // KNN 적용 (비슷한 이웃 K만큼 찾기)
-        int[] neighbors = KnnGetNeighbors(loginUser, userEvaluations, K);
+        Long[] neighborsIds = getNeighborsIds(loginUser, userEvaluations, K);
 
-        Set<Webtoon> recommendationResult = getRecommendationResults(neighbors, userEvaluations, loginUser);
+        Set<Webtoon> recommendationResult = getRecommendationResults(neighborsIds, userEvaluations, loginUser);
         saveRecommendationResults(userRecommendation, evaluationCount, recommendationResult);
 
         return recommendationResult;
     }
 
-    private Set<Webtoon> getRecommendationResults(int[] neighbors, List<Evaluation> userEvaluations,
+    private Long[] getNeighborsIds(Account loginUser, List<Evaluation> userEvaluations, int K) {
+        List<Account> allUsers = accountRepository.findAll();
+        List<Long> userIds = allUsers.stream().map(Account::getId).toList();
+
+        // KNN 적용 (비슷한 이웃 K만큼 찾기)
+        int[] neighbors = KnnGetNeighbors(allUsers, loginUser, userEvaluations, K);
+
+        return Arrays.stream(neighbors)
+                .mapToObj(index -> userIds.get(index))
+                .toArray(Long[]::new);
+    }
+
+    private Set<Webtoon> getRecommendationResults(Long[] neighborsIds, List<Evaluation> userEvaluations,
                                                   Account loginUser) {
-        Set<Webtoon> personalRecommendWebtoons = getNeighborRecommendedWebtoons(neighbors, userEvaluations,
+        Set<Webtoon> personalRecommendWebtoons = getNeighborRecommendedWebtoons(neighborsIds, userEvaluations,
                 RECOMMENDATION_COUNT.getValue());
 
         return mbtiRecommendationService.addMbtiSuffixFavoriteWebtoon(loginUser.getMbti(),
@@ -96,8 +108,7 @@ public class RecommendationService {
         recommendationWebtoonRepository.batchInsertRecommendationWebtoons(recommendationWebtoons);
     }
 
-    private int[] KnnGetNeighbors(Account loginUser, List<Evaluation> userEvaluations, int K) {
-        List<Account> allUsers = accountRepository.findAll();
+    private int[] KnnGetNeighbors(List<Account> allUsers, Account loginUser, List<Evaluation> userEvaluations, int K) {
         List<Webtoon> allWebtoons = webtoonRepository.findAll();
         int userIndex = allUsers.indexOf(loginUser);
 
@@ -148,13 +159,13 @@ public class RecommendationService {
                 .toArray();
     }
 
-    private Set<Webtoon> getNeighborRecommendedWebtoons(int[] neighbors, List<Evaluation> userEvaluations,
+    private Set<Webtoon> getNeighborRecommendedWebtoons(Long[] neighborsIds, List<Evaluation> userEvaluations,
                                                         int recommendationCount) {
         Map<Webtoon, Integer> webtoonFrequency = new HashMap<>();
 
         //코사인 유사도가 높은 이웃이 평가한 웹툰 중 높게 평가한 웹툰들의 빈도수를 정리
-        for (int neighborId : neighbors) {
-            List<Evaluation> neighborEvaluations = evaluationRepository.findByAccountId((long) neighborId);
+        for (Long neighborId : neighborsIds) {
+            List<Evaluation> neighborEvaluations = evaluationRepository.findByAccountId(neighborId);
             filterHighRatedWebtoons(neighborEvaluations, webtoonFrequency);
         }
 
