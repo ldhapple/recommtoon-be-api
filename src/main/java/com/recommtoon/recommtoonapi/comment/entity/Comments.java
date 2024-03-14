@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Getter
 public class Comments extends BaseEntity {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
