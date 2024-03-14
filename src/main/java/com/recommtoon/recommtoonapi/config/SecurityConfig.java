@@ -59,7 +59,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/", "/api/account/register",
                                 "/api/account/checkDuplicate/**", "/api/auth/login", "/api/auth/refresh", "/api/board/**",
-                                "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                                "/swagger-ui/**", "/v3/api-docs/**", "/api/mbti/favorite/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/comments/*").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated());
