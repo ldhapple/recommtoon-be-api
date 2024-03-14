@@ -13,7 +13,9 @@ import static com.recommtoon.recommtoonapi.webtoon.entity.Genre.SCHOOL;
 import static com.recommtoon.recommtoonapi.webtoon.entity.Genre.THRILLER;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.recommtoon.recommtoonapi.exception.NotFoundException;
 import com.recommtoon.recommtoonapi.webtoon.entity.Genre;
+import java.util.Arrays;
 import java.util.Set;
 import lombok.Getter;
 
@@ -45,5 +47,13 @@ public enum MbtiType {
 
     MbtiType(Set<Genre> favoriteGenres) {
         this.favoriteGenres = favoriteGenres;
+    }
+
+    public static Set<Genre> getGenres(String mbti) {
+        return Arrays.stream(values())
+                .filter(mbtiType -> mbtiType.name().equals(mbti.toUpperCase()))
+                .findFirst()
+                .map(MbtiType::getFavoriteGenres)
+                .orElseThrow(() -> new NotFoundException("잘못된 MBTI 값 입니다." + mbti));
     }
 }

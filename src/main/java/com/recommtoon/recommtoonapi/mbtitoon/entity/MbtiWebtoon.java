@@ -4,6 +4,7 @@ import com.recommtoon.recommtoonapi.base.entity.BaseEntity;
 import com.recommtoon.recommtoonapi.mbti.entity.Mbti;
 import com.recommtoon.recommtoonapi.webtoon.entity.Webtoon;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,4 +23,10 @@ public class MbtiWebtoon extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "webtoon_id")
     private Webtoon webtoon;
+
+    @Builder
+    public MbtiWebtoon(Mbti mbti, Webtoon webtoon) {
+        this.mbti = mbti;
+        this.webtoon = webtoon;
+    }
 }
