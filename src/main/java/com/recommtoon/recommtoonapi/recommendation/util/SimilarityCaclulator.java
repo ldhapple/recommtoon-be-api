@@ -16,7 +16,28 @@ import org.springframework.stereotype.Component;
 @Component
 public class SimilarityCaclulator {
 
-    public double[] preprocessUserData(Account user) {
+    public double[] getCombinedConsineSimilarity(List<Account> allUsers, List<Webtoon> allWebtoons,
+                                                 List<Evaluation> userEvaluations, int userIndex) {
+        double[][] userVectors = allUsers.stream()
+                .map(this::preprocessUserData)
+                .toArray(double[][]::new);
+
+        double[][] ratingVectors = allUsers.stream()
+                .map(user -> getUserRatingVector(allWebtoons, userEvaluations))
+                .toArray(double[][]::new);
+
+        // 추천 대상 유저와 각 유저들간의 코사인 유사도 계산
+        double[] combinedSimilarities = new double[allUsers.size()];
+
+        for (int i = 0; i < allUsers.size(); i++) {
+            combinedSimilarities[i] = calculateCombinedCosineSimilarity(userVectors, ratingVectors,
+                    userIndex, i);
+        }
+
+        return combinedSimilarities;
+    }
+
+    private double[] preprocessUserData(Account user) {
         //Gender, Mbti, Age
         double[] vector = new double[3];
 
@@ -37,7 +58,7 @@ public class SimilarityCaclulator {
         return vector;
     }
 
-    public double[] getUserRatingVector(List<Webtoon> allWebtoons, List<Evaluation> userEvaluations) {
+    private double[] getUserRatingVector(List<Webtoon> allWebtoons, List<Evaluation> userEvaluations) {
         double[] ratings = new double[allWebtoons.size()];
 
         for (Evaluation eval : userEvaluations) {
@@ -49,7 +70,17 @@ public class SimilarityCaclulator {
         return ratings;
     }
 
-    public double cosineSimilarity(double[] vectorA, double[] vectorB) {
+    private double calculateCombinedCosineSimilarity(double[][] userVectors, double[][] ratingVectors, int userIndex,
+                                                     int i) {
+        double personalSimilarity = cosineSimilarity(userVectors[userIndex],
+                userVectors[i]);
+        double ratingSimilarity = cosineSimilarity(ratingVectors[userIndex],
+                ratingVectors[i]);
+
+        return (0.4 * personalSimilarity) + (0.6 * ratingSimilarity); // 유사도 통합 (평가 유사도에 더 높은 가중치 부여)
+    }
+
+    private double cosineSimilarity(double[] vectorA, double[] vectorB) {
         RealVector vector1 = new ArrayRealVector(vectorA);
         RealVector vector2 = new ArrayRealVector(vectorB);
 
