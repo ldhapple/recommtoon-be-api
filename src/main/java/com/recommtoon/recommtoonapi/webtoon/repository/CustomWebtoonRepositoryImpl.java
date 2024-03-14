@@ -2,7 +2,11 @@ package com.recommtoon.recommtoonapi.webtoon.repository;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.recommtoon.recommtoonapi.account.entity.QAccount;
 import com.recommtoon.recommtoonapi.evaluation.entity.QEvaluation;
+import com.recommtoon.recommtoonapi.mbti.entity.Mbti;
+import com.recommtoon.recommtoonapi.mbti.entity.MbtiType;
+import com.recommtoon.recommtoonapi.mbtitoon.dto.MbtiFavoriteToonDto;
 import com.recommtoon.recommtoonapi.webtoon.dto.RatingWebtoonDto;
 import com.recommtoon.recommtoonapi.webtoon.entity.QWebtoon;
 import jakarta.persistence.EntityManager;
@@ -51,5 +55,27 @@ public class CustomWebtoonRepositoryImpl implements CustomWebtoonRepository {
 //        return new PageImpl<>(subList, pageable, content.size());
 
         return content;
+    }
+
+    @Override
+    public List<MbtiFavoriteToonDto> findTopRatedWebtoonsByMbti(MbtiType mbtiType) {
+        QAccount account = QAccount.account;
+        QEvaluation evaluation = QEvaluation.evaluation;
+        QWebtoon webtoon = QWebtoon.webtoon;
+
+        int limit = 20;
+
+        return queryFactory
+                .select(Projections.constructor(MbtiFavoriteToonDto.class,
+                        webtoon.titleId,
+                        webtoon.imgSrc))
+                .from(evaluation)
+                .join(evaluation.account, account)
+                .join(evaluation.webtoon, webtoon)
+                .where(account.mbti.mbtiType.eq(mbtiType))
+                .groupBy(webtoon.id)
+                .orderBy(evaluation.id.count().desc(), evaluation.rating.avg().desc())
+                .limit(limit)
+                .fetch();
     }
 }
