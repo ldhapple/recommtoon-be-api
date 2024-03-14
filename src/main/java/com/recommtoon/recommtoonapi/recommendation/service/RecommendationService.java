@@ -75,14 +75,17 @@ public class RecommendationService {
         return recommendationResult;
     }
 
-    private Set<Webtoon> getRecommendationResults(int[] neighbors, List<Evaluation> userEvaluations, Account loginUser) {
-        Set<Webtoon> personalRecommendWebtoons = getNeighborRecommendedWebtoons(neighbors, userEvaluations, RECOMMENDATION_COUNT.getValue());
+    private Set<Webtoon> getRecommendationResults(int[] neighbors, List<Evaluation> userEvaluations,
+                                                  Account loginUser) {
+        Set<Webtoon> personalRecommendWebtoons = getNeighborRecommendedWebtoons(neighbors, userEvaluations,
+                RECOMMENDATION_COUNT.getValue());
 
         return mbtiRecommendationService.addMbtiSuffixFavoriteWebtoon(loginUser.getMbti(),
                 personalRecommendWebtoons, userEvaluations);
     }
 
-    private void saveRecommendationResults(Recommendation userRecommendation, Long evaluationCount, Set<Webtoon> recommendationResult) {
+    private void saveRecommendationResults(Recommendation userRecommendation, Long evaluationCount,
+                                           Set<Webtoon> recommendationResult) {
         Recommendation savedRecommendation = recommendationRepository.save(userRecommendation);
         savedRecommendation.updateEvaluationCount(evaluationCount);
 
@@ -124,7 +127,8 @@ public class RecommendationService {
                         .build());
 
         if (!userRecommendation.getEvaluationCount().equals(evaluationCount)) {
-            userRecommendation.clearRecommendedWebtoons();
+            recommendationWebtoonRepository.deleteByRecommendationId(userRecommendation.getId());
+//            userRecommendation.clearRecommendedWebtoons();
         }
 
         return userRecommendation;
@@ -145,7 +149,7 @@ public class RecommendationService {
     }
 
     private Set<Webtoon> getNeighborRecommendedWebtoons(int[] neighbors, List<Evaluation> userEvaluations,
-                                                int recommendationCount) {
+                                                        int recommendationCount) {
         Map<Webtoon, Integer> webtoonFrequency = new HashMap<>();
 
         //코사인 유사도가 높은 이웃이 평가한 웹툰 중 높게 평가한 웹툰들의 빈도수를 정리
@@ -163,7 +167,7 @@ public class RecommendationService {
     }
 
     private static void filterHighRatedWebtoons(List<Evaluation> neighborEvaluations,
-                                                   Map<Webtoon, Integer> webtoonFrequency) {
+                                                Map<Webtoon, Integer> webtoonFrequency) {
         double averageRating = calculateUserAverageRating(neighborEvaluations);
 
         neighborEvaluations.stream()

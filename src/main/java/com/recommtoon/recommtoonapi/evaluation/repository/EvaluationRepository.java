@@ -13,5 +13,6 @@ public interface EvaluationRepository extends JpaRepository<Evaluation, Long> {
 
     Optional<Evaluation> findByAccountIdAndWebtoonId(Long accountId, Long webtoonId);
 
-    List<Evaluation> findByAccountId(Long accountId);
+    @Query("select e from Evaluation e join fetch e.webtoon where e.account.id = :accountId")
+    List<Evaluation> findByAccountId(@Param("accountId") Long accountId);
 }
