@@ -69,13 +69,14 @@ public class RecommendationService {
             }
         }
 
+        List<Evaluation> userEvaluations = evaluationRepository.findByAccountId(userId);
+
         if (evaluationCount < 10) {
-            return mbtiRecommendationService.addMbtiSuffixFavoriteWebtoon(userMbti, new HashSet<>());
+            return mbtiRecommendationService.addMbtiSuffixFavoriteWebtoon(userMbti, new HashSet<>(), userEvaluations);
         }
 
         List<Account> allUsers = accountRepository.findAll();
         List<Webtoon> allWebtoons = webtoonRepository.findAll();
-        List<Evaluation> evaluations = evaluationRepository.findByAccountId(userId);
         int userIndex = allUsers.indexOf(loginUser);
 
         // 사용자 정보 (성별, MBTI, 나이)와 평가 정보를 벡터로 전환
@@ -84,7 +85,7 @@ public class RecommendationService {
                 .toArray(double[][]::new);
 
         double[][] ratingVectors = allUsers.stream()
-                .map(user -> similarityCalculator.getUserRatingVector(allWebtoons, evaluations))
+                .map(user -> similarityCalculator.getUserRatingVector(allWebtoons, userEvaluations))
                 .toArray(double[][]::new);
 
         // 추천 대상 유저와 각 유저들간의 코사인 유사도 계산
@@ -102,10 +103,10 @@ public class RecommendationService {
         int[] neighbors = findKNearestNeighbors(combinedSimilarities, K);
 
         // 이웃들이 높게 평가한 웹툰 추천
-        Set<Webtoon> personalRecommendWebtoons = getRecommendedWebtoons(neighbors, userId, 24);
+        Set<Webtoon> personalRecommendWebtoons = getRecommendedWebtoons(neighbors, userEvaluations, 24);
 
         Set<Webtoon> recommendationResult = mbtiRecommendationService.addMbtiSuffixFavoriteWebtoon(userMbti,
-                personalRecommendWebtoons);
+                personalRecommendWebtoons, userEvaluations);
 
         Recommendation savedRecommendation = recommendationRepository.save(userRecommendation);
         savedRecommendation.updateEvaluationCount(evaluationCount);
@@ -133,7 +134,7 @@ public class RecommendationService {
                 .toArray();
     }
 
-    private Set<Webtoon> getRecommendedWebtoons(int[] neighbors, Long userId, int maxRecommendations) {
+    private Set<Webtoon> getRecommendedWebtoons(int[] neighbors, List<Evaluation> userEvaluations, int maxRecommendations) {
         Map<Webtoon, Integer> webtoonFrequency = new HashMap<>();
 
         //코사인 유사도가 높은 이웃이 평가한 웹툰 중 3점 이상으로 평가한 웹툰들을 취합
@@ -146,7 +147,6 @@ public class RecommendationService {
             }
         }
 
-        List<Evaluation> userEvaluations = evaluationRepository.findByAccountId(userId);
         Set<Webtoon> ratedWebtoons = userEvaluations.stream().map(Evaluation::getWebtoon).collect(Collectors.toSet());
 
         //사용자가 평가한 웹툰 제외 및 추천 개수 설정

@@ -1,5 +1,6 @@
 package com.recommtoon.recommtoonapi.recommendation.service;
 
+import com.recommtoon.recommtoonapi.evaluation.entity.Evaluation;
 import com.recommtoon.recommtoonapi.mbti.entity.Mbti;
 import com.recommtoon.recommtoonapi.mbti.entity.MbtiSuffix;
 import com.recommtoon.recommtoonapi.webtoon.entity.Genre;
@@ -21,7 +22,12 @@ public class MbtiRecommendationService {
 
     private final WebtoonRepository webtoonRepository;
 
-    public Set<Webtoon> addMbtiSuffixFavoriteWebtoon(Mbti userMbti, Set<Webtoon> personalRecommendationResult) {
+    public Set<Webtoon> addMbtiSuffixFavoriteWebtoon(Mbti userMbti, Set<Webtoon> personalRecommendationResult, List<Evaluation> userEvaluations) {
+
+        Set<Long> ratedWebtoonIds = userEvaluations
+                .stream()
+                .map(evaluation -> evaluation.getWebtoon().getId())
+                .collect(Collectors.toSet());
 
         Set<Webtoon> result = personalRecommendationResult;
 
@@ -31,7 +37,7 @@ public class MbtiRecommendationService {
         Set<Genre> favoriteGenres = MbtiSuffix.getGenres(userMbtiSuffix);
 
 
-        int mbtiSuffixFavoriteWebtoonCount = (33 - recommendationCount) / 3;
+        int mbtiSuffixFavoriteWebtoonCount = (40 - recommendationCount) / 3;
 
 
         for (Genre favoriteGenre : favoriteGenres) {
@@ -40,7 +46,9 @@ public class MbtiRecommendationService {
             Set<Webtoon> randomWebtoonsByFavoriteGenreName = webtoonRepository.findRandomWebtoonsByFavoriteGenreName(
                     genreName, mbtiSuffixFavoriteWebtoonCount);
 
-            result.addAll(randomWebtoonsByFavoriteGenreName);
+            randomWebtoonsByFavoriteGenreName.stream()
+                    .filter(webtoon -> !ratedWebtoonIds.contains(webtoon.getId()))
+                    .forEach(result::add);
         }
 
         return result;
