@@ -1,11 +1,14 @@
 package com.recommtoon.recommtoonapi.recommendation.service;
 
+import static com.recommtoon.recommtoonapi.recommendation.util.RecommendationConst.*;
+
 import com.recommtoon.recommtoonapi.evaluation.entity.Evaluation;
 import com.recommtoon.recommtoonapi.mbti.entity.Mbti;
 import com.recommtoon.recommtoonapi.mbti.entity.MbtiSuffix;
 import com.recommtoon.recommtoonapi.mbti.entity.MbtiType;
 import com.recommtoon.recommtoonapi.mbtitoon.entity.MbtiWebtoon;
 import com.recommtoon.recommtoonapi.mbtitoon.repository.MbtiWebtoonRepository;
+import com.recommtoon.recommtoonapi.recommendation.util.RecommendationConst;
 import com.recommtoon.recommtoonapi.webtoon.entity.Genre;
 import com.recommtoon.recommtoonapi.webtoon.entity.Webtoon;
 import com.recommtoon.recommtoonapi.webtoon.repository.WebtoonRepository;
@@ -40,7 +43,7 @@ public class MbtiRecommendationService {
         Set<Genre> favoriteGenres = MbtiSuffix.getGenres(userMbtiSuffix);
 
 
-        int mbtiSuffixFavoriteWebtoonCount = (40 - recommendationCount) / 3;
+        int mbtiSuffixFavoriteWebtoonCount = (TOTAL_RECOMMENDATION_COUNT.getValue() - recommendationCount) / 3;
 
 
         for (Genre favoriteGenre : favoriteGenres) {
