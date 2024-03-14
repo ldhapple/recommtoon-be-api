@@ -12,4 +12,6 @@ public interface EvaluationRepository extends JpaRepository<Evaluation, Long> {
     Long countByAccountId(Long id);
 
     Optional<Evaluation> findByAccountIdAndWebtoonId(Long accountId, Long webtoonId);
+
+    List<Evaluation> findByAccountId(Long accountId);
 }
