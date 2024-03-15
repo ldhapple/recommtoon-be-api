@@ -5,15 +5,18 @@ import com.recommtoon.recommtoonapi.account.repository.AccountRepository;
 import com.recommtoon.recommtoonapi.evaluation.repository.EvaluationRepository;
 import com.recommtoon.recommtoonapi.exception.NotFoundException;
 import com.recommtoon.recommtoonapi.webtoon.dto.RatingWebtoonDto;
+import com.recommtoon.recommtoonapi.webtoon.dto.SearchWebtoonDto;
 import com.recommtoon.recommtoonapi.webtoon.dto.WebtoonBoardDto;
 import com.recommtoon.recommtoonapi.webtoon.entity.Genre;
 import com.recommtoon.recommtoonapi.webtoon.entity.Webtoon;
 import com.recommtoon.recommtoonapi.webtoon.repository.CustomWebtoonRepository;
 import com.recommtoon.recommtoonapi.webtoon.repository.WebtoonRepository;
+import io.micrometer.common.util.StringUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -28,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class WebtoonService {
 
     private final WebtoonRepository webtoonRepository;
@@ -36,7 +40,8 @@ public class WebtoonService {
 
     public Page<RatingWebtoonDto> getNoEvaluateCards(String loginUsername, int page,
                                                      int size) {
-        List<RatingWebtoonDto> allNotEvaluatedWebtoons = webtoonCacheService.getCachedNotEvaluatedWebtoon(loginUsername);
+        List<RatingWebtoonDto> allNotEvaluatedWebtoons = webtoonCacheService.getCachedNotEvaluatedWebtoon(
+                loginUsername);
 
         int fromIndex = page * size;
         int toIndex = Math.min((page + 1) * size, allNotEvaluatedWebtoons.size());
@@ -65,5 +70,16 @@ public class WebtoonService {
                         .map(Genre::getKoreanName)
                         .collect(Collectors.toSet()))
                 .build();
+    }
+
+    public Page<SearchWebtoonDto> searchWebtoon(Pageable pageable, String searchParam) {
+        log.info("Searching for webtoons with search term: {}", searchParam);
+        if (!StringUtils.isEmpty(searchParam)) {
+            return webtoonRepository.findByTitleContainingIgnoreCase(searchParam, pageable)
+                    .map(w -> new SearchWebtoonDto(w.getTitleId(), w.getImgSrc()));
+        }
+
+        return webtoonRepository.findAll(pageable)
+                .map(w -> new SearchWebtoonDto(w.getTitleId(), w.getImgSrc()));
     }
 }
