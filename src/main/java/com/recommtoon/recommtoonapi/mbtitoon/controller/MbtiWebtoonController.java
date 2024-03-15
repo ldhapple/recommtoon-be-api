@@ -35,7 +35,7 @@ public class MbtiWebtoonController {
 
     @Operation(summary = "MBTI별 선호 웹툰 조회", description = "각 MBTI별 선호 웹툰을 조회한다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "웹툰 정보 조회 성공", content = @Content(schema = @Schema(implementation = Page.class))),
+            @ApiResponse(responseCode = "200", description = "웹툰 정보 조회 성공", content = @Content(schema = @Schema(implementation = MbtiFavoriteToonDto.class))),
             @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.", content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
     @GetMapping("/favorite/{mbtiType}")

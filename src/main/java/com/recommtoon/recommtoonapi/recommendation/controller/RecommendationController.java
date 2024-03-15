@@ -33,7 +33,7 @@ public class RecommendationController {
 
     @Operation(summary = "개인별 웹툰 추천", description = "평가 개수가 10개 미만이면, MBTI별 선호 장르의 웹툰들이 보여진다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "웹툰 정보 조회 성공", content = @Content(schema = @Schema(implementation = Page.class))),
+            @ApiResponse(responseCode = "200", description = "웹툰 정보 조회 성공", content = @Content(schema = @Schema(implementation = WebtoonRecommendationDto.class))),
             @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.", content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
     @GetMapping

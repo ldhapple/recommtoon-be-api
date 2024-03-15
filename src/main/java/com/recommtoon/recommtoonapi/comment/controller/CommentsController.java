@@ -36,7 +36,7 @@ public class CommentsController {
 
     @Operation(summary = "댓글 가져오기")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "댓글 조회 성공", content = @Content(schema = @Schema(implementation = List.class))),
+            @ApiResponse(responseCode = "200", description = "댓글 조회 성공", content = @Content(schema = @Schema(implementation = CommentResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "해당 웹툰이 존재하지 않습니다.", content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
     @GetMapping("/{titleId}")
