@@ -4,6 +4,7 @@ import com.recommtoon.recommtoonapi.account.entity.Account;
 import com.recommtoon.recommtoonapi.account.repository.AccountRepository;
 import com.recommtoon.recommtoonapi.evaluation.repository.EvaluationRepository;
 import com.recommtoon.recommtoonapi.exception.NotFoundException;
+import com.recommtoon.recommtoonapi.webtoon.dto.FriendsWebtoonDto;
 import com.recommtoon.recommtoonapi.webtoon.dto.RatingWebtoonDto;
 import com.recommtoon.recommtoonapi.webtoon.dto.SearchWebtoonDto;
 import com.recommtoon.recommtoonapi.webtoon.dto.WebtoonBoardDto;
@@ -81,5 +82,9 @@ public class WebtoonService {
 
         return webtoonRepository.findAll(pageable)
                 .map(w -> new SearchWebtoonDto(w.getTitleId(), w.getImgSrc()));
+    }
+
+    public Page<FriendsWebtoonDto> searchFriendsWebtoon(String name, String gender, Integer age, Pageable pageable) {
+        return webtoonRepository.findSearchConditionWebtoon(name, gender, age, pageable);
     }
 }

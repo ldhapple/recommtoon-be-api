@@ -40,4 +40,14 @@ public class WebtoonController {
 
         return ApiUtil.success(webtoonService.searchWebtoon(pageable, searchParam));
     }
+
+    @GetMapping("/friends-webtoon")
+    public ApiSuccess<?> searchFriendsWebtoons(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String gender,
+            @RequestParam(required = false) Integer age,
+            Pageable pageable
+    ) {
+        return ApiUtil.success(webtoonService.searchFriendsWebtoon(name, gender, age, pageable));
+    }
 }

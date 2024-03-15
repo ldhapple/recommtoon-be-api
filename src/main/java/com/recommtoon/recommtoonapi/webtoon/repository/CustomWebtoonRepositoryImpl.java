@@ -1,12 +1,19 @@
 package com.recommtoon.recommtoonapi.webtoon.repository;
 
+import static com.recommtoon.recommtoonapi.account.entity.QAccount.account;
+import static org.springframework.util.StringUtils.hasText;
+
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.recommtoon.recommtoonapi.account.entity.Gender;
 import com.recommtoon.recommtoonapi.account.entity.QAccount;
 import com.recommtoon.recommtoonapi.evaluation.entity.QEvaluation;
 import com.recommtoon.recommtoonapi.mbti.entity.Mbti;
 import com.recommtoon.recommtoonapi.mbti.entity.MbtiType;
 import com.recommtoon.recommtoonapi.mbtitoon.dto.MbtiFavoriteToonDto;
+import com.recommtoon.recommtoonapi.webtoon.dto.FriendsWebtoonDto;
 import com.recommtoon.recommtoonapi.webtoon.dto.RatingWebtoonDto;
 import com.recommtoon.recommtoonapi.webtoon.entity.QWebtoon;
 import jakarta.persistence.EntityManager;
@@ -77,5 +84,44 @@ public class CustomWebtoonRepositoryImpl implements CustomWebtoonRepository {
                 .orderBy(evaluation.id.count().desc(), evaluation.rating.avg().desc())
                 .limit(limit)
                 .fetch();
+    }
+
+    @Override
+    public Page<FriendsWebtoonDto> findSearchConditionWebtoon(String name, String gender, Integer age,
+                                                              Pageable pageable) {
+        QWebtoon webtoon = QWebtoon.webtoon;
+        QAccount account = QAccount.account;
+        QEvaluation evaluation = QEvaluation.evaluation;
+
+        JPAQuery<FriendsWebtoonDto> query = queryFactory
+                .select(Projections.constructor(FriendsWebtoonDto.class,
+                        webtoon.titleId,
+                        webtoon.imgSrc,
+                        evaluation.rating.avg().as("avgRating")))
+                .from(evaluation)
+                .join(evaluation.webtoon, webtoon)
+                .join(evaluation.account, account)
+                .where(usernameEq(name), genderEq(gender), ageEq(age))
+                .groupBy(webtoon.titleId, webtoon.imgSrc)
+                .orderBy(evaluation.rating.avg().desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        List<FriendsWebtoonDto> content = query.fetch();
+        long total = query.fetchCount();
+
+        return new PageImpl<>(content, pageable, total);
+    }
+
+    private BooleanExpression usernameEq(String username) {
+        return hasText(username) ? account.username.eq(username) : null;
+    }
+
+    private BooleanExpression genderEq(String gender) {
+        return hasText(gender) ? account.gender.eq(Gender.from(gender)) : null;
+    }
+
+    private BooleanExpression ageEq(Integer age) {
+        return age != null ? account.age.eq(age) : null;
     }
 }
