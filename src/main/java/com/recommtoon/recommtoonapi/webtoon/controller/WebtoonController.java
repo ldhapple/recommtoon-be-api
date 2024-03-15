@@ -3,6 +3,7 @@ package com.recommtoon.recommtoonapi.webtoon.controller;
 import com.recommtoon.recommtoonapi.util.ApiUtil;
 import com.recommtoon.recommtoonapi.util.ApiUtil.ApiError;
 import com.recommtoon.recommtoonapi.util.ApiUtil.ApiSuccess;
+import com.recommtoon.recommtoonapi.webtoon.dto.FriendsWebtoonDto;
 import com.recommtoon.recommtoonapi.webtoon.dto.SearchWebtoonDto;
 import com.recommtoon.recommtoonapi.webtoon.dto.WebtoonBoardDto;
 import com.recommtoon.recommtoonapi.webtoon.service.WebtoonService;
@@ -32,7 +33,7 @@ public class WebtoonController {
     @Operation(summary = "전체 웹툰 검색")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "웹툰 검색 성공", content = @Content(schema = @Schema(implementation = SearchWebtoonDto.class))),
-            @ApiResponse(responseCode = "400", description = "올바른 값이 아닙니다.", content = @Content(schema = @Schema(implementation = ApiError.class)))
+            @ApiResponse(responseCode = "400", description = "올바른 입력 값이 아닙니다.", content = @Content(schema = @Schema(implementation = ApiError.class)))
     })
     @GetMapping
     public ApiSuccess<?> searchResultWebtoons(@PageableDefault(size = 50) Pageable pageable,
@@ -41,6 +42,11 @@ public class WebtoonController {
         return ApiUtil.success(webtoonService.searchWebtoon(pageable, searchParam));
     }
 
+    @Operation(summary = "친구의 웹툰 검색")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "웹툰 검색 성공", content = @Content(schema = @Schema(implementation = FriendsWebtoonDto.class))),
+            @ApiResponse(responseCode = "400", description = "올바른 입력 값이 아닙니다.", content = @Content(schema = @Schema(implementation = ApiError.class)))
+    })
     @GetMapping("/friends-webtoon")
     public ApiSuccess<?> searchFriendsWebtoons(
             @RequestParam(required = false) String name,
