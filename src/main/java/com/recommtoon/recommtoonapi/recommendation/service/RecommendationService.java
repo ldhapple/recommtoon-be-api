@@ -36,6 +36,7 @@ import smile.neighbor.Neighbor;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class RecommendationService {
 
     private final AccountRepository accountRepository;
@@ -66,6 +67,7 @@ public class RecommendationService {
         if (isEvaluationCountNotChange(userRecommendation, evaluationCount)) {
             return getPreviousRecommendWebtoons(userRecommendation);
         }
+
 
         Long[] neighborsIds = getNeighborsIds(loginUser, userEvaluations, K);
 
@@ -120,6 +122,10 @@ public class RecommendationService {
     }
 
     private boolean isEvaluationCountNotChange(Recommendation userRecommendation, Long evaluationCount) {
+        if (userRecommendation.getRecommWebtoons().isEmpty()) {
+            return false;
+        }
+
         return userRecommendation.getEvaluationCount().equals(evaluationCount);
     }
 
