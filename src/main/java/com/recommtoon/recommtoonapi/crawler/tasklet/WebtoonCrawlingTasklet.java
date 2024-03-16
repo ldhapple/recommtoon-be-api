@@ -8,15 +8,15 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.stereotype.Component;
 
-@Component
-@RequiredArgsConstructor
-public class WebtoonCrawlingTasklet implements Tasklet {
-
-    private final CrawlerService crawlerService;
-
-    @Override
-    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        crawlerService.newWebtoonCrawling();
-        return RepeatStatus.FINISHED;
-    }
-}
+//@Component
+//@RequiredArgsConstructor
+//public class WebtoonCrawlingTasklet implements Tasklet {
+//
+//    private final CrawlerService crawlerService;
+//
+//    @Override
+//    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+//        crawlerService.newWebtoonCrawling();
+//        return RepeatStatus.FINISHED;
+//    }
+//}
