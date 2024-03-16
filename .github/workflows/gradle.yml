@@ -59,9 +59,9 @@ jobs:
         port: 22
         # 도커 작업
         script: |
-          docker pull ${{ secrets.DOCKER_USERNAME }}
+          docker pull recommtoon/recommtoon
           docker stop $(docker ps -a -q)
-          docker run -d --log-driver=syslog -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}
+          docker run -d --log-driver=syslog -p 8080:8080 recommtoon/recommtoon
           docker rm $(docker ps --filter 'status=exited' -a -q)
           docker image prune -a -f
 
