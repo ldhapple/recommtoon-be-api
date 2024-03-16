@@ -17,7 +17,7 @@ build/
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
-application-secret.properties
+application.properties
 
 ### IntelliJ IDEA ###
 .idea
