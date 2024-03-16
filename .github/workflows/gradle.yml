@@ -47,8 +47,8 @@ jobs:
     - name: Docker build
       run: |
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-        docker build -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}
-        docker push ${{ secrets.DOCKER_USERNAME }}
+        docker build -t recommtoon/recommtoon .
+        docker push recommtoon/recommtoon
 
     - name: Deploy
       uses: appleboy/ssh-action@master
