@@ -6,8 +6,8 @@
     <springProperty scope="context" name="LOG_LEVEL" source="logging.level.root" defaultValue="INFO"/>
 
     <!-- EC2 환경에서의 로그 파일 경로 -->
-<!--    <property name="LOG_PATH" value="/var/log/recommtoon"/>-->
-    <property name="LOG_PATH" value="C:\Users\h8\Desktop\recommtoon\BE"/>
+    <property name="LOG_PATH" value="/var/log/recommtoon"/>
+<!--    <property name="LOG_PATH" value="C:\Users\h8\Desktop\recommtoon\BE"/>-->
     <property name="LOG_FILE_NAME" value="recommtoon"/>
     <property name="ERR_LOG_FILE_NAME" value="error_log"/>
 
