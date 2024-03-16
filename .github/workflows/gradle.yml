@@ -47,21 +47,21 @@ jobs:
     - name: Docker build
       run: |
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-        docker build -t app .
-        docker tag app ${{ secrets.DOCKER_USERNAME }}
-        docker push ${{ secrets.DOCKER_USERNAME }}
+        docker build -t recommtoon/recommtoon .
+        docker push recommtoon/recommtoon
 
     - name: Deploy
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.HOST }} # EC2 인스턴스 퍼블릭 DNS
-        username: ec2-user
+        username: ubuntu
         key: ${{ secrets.PRIVATE_KEY }} # pem 키
+        port: 22
         # 도커 작업
         script: |
-          docker pull ${{ secrets.DOCKER_USERNAME }}
+          docker pull recommtoon/recommtoon
           docker stop $(docker ps -a -q)
-          docker run -d --log-driver=syslog -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}
+          docker run -d --log-driver=syslog -p 8080:8080 recommtoon/recommtoon
           docker rm $(docker ps --filter 'status=exited' -a -q)
           docker image prune -a -f
 
