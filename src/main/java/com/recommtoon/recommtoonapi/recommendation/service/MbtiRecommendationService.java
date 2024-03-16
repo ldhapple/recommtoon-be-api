@@ -2,6 +2,7 @@ package com.recommtoon.recommtoonapi.recommendation.service;
 
 import static com.recommtoon.recommtoonapi.recommendation.util.RecommendationConst.*;
 
+import com.recommtoon.recommtoonapi.annotation.TimeTrace;
 import com.recommtoon.recommtoonapi.evaluation.entity.Evaluation;
 import com.recommtoon.recommtoonapi.mbti.entity.Mbti;
 import com.recommtoon.recommtoonapi.mbti.entity.MbtiSuffix;
@@ -28,6 +29,7 @@ public class MbtiRecommendationService {
 
     private final WebtoonRepository webtoonRepository;
 
+    @TimeTrace
     public Set<Webtoon> addMbtiSuffixFavoriteWebtoon(Mbti userMbti, Set<Webtoon> personalRecommendationResult, List<Evaluation> userEvaluations) {
 
         Set<Long> ratedWebtoonIds = userEvaluations

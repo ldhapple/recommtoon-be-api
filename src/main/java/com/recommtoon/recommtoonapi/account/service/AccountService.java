@@ -9,7 +9,6 @@ import com.recommtoon.recommtoonapi.mbti.entity.MbtiType;
 import com.recommtoon.recommtoonapi.mbti.repository.MbtiRepository;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;

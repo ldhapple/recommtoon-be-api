@@ -2,6 +2,7 @@ package com.recommtoon.recommtoonapi.webtoon.service;
 
 import com.recommtoon.recommtoonapi.account.entity.Account;
 import com.recommtoon.recommtoonapi.account.repository.AccountRepository;
+import com.recommtoon.recommtoonapi.annotation.TimeTrace;
 import com.recommtoon.recommtoonapi.evaluation.repository.EvaluationRepository;
 import com.recommtoon.recommtoonapi.exception.NotFoundException;
 import com.recommtoon.recommtoonapi.webtoon.dto.FriendsWebtoonDto;
@@ -84,6 +85,7 @@ public class WebtoonService {
                 .map(w -> new SearchWebtoonDto(w.getTitleId(), w.getImgSrc()));
     }
 
+    @TimeTrace
     public Page<FriendsWebtoonDto> searchFriendsWebtoon(String name, String gender, Integer age, Pageable pageable) {
         return webtoonRepository.findSearchConditionWebtoon(name, gender, age, pageable);
     }

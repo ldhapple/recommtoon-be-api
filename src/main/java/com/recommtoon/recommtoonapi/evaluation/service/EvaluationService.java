@@ -2,6 +2,7 @@ package com.recommtoon.recommtoonapi.evaluation.service;
 
 import com.recommtoon.recommtoonapi.account.entity.Account;
 import com.recommtoon.recommtoonapi.account.repository.AccountRepository;
+import com.recommtoon.recommtoonapi.annotation.TimeTrace;
 import com.recommtoon.recommtoonapi.evaluation.entity.Evaluation;
 import com.recommtoon.recommtoonapi.evaluation.repository.EvaluationRepository;
 import com.recommtoon.recommtoonapi.exception.NotFoundException;
@@ -22,6 +23,7 @@ public class EvaluationService {
     private final EvaluationRepository evaluationRepository;
     private final AccountRepository accountRepository;
 
+    @TimeTrace
     public Evaluation saveEvaluation(Evaluation evaluation) {
         Long accountId = evaluation.getAccount().getId();
         Long webtoonId = evaluation.getWebtoon().getId();

@@ -5,6 +5,7 @@ import static com.recommtoon.recommtoonapi.recommendation.util.RecommendationCon
 import com.recommtoon.recommtoonapi.account.entity.Account;
 import com.recommtoon.recommtoonapi.account.entity.Gender;
 import com.recommtoon.recommtoonapi.account.repository.AccountRepository;
+import com.recommtoon.recommtoonapi.annotation.TimeTrace;
 import com.recommtoon.recommtoonapi.evaluation.entity.Evaluation;
 import com.recommtoon.recommtoonapi.evaluation.repository.EvaluationRepository;
 import com.recommtoon.recommtoonapi.exception.NotFoundException;
@@ -47,6 +48,7 @@ public class RecommendationService {
     private final SimilarityCaclulator similarityCalculator;
     private final MbtiRecommendationService mbtiRecommendationService;
 
+    @TimeTrace
     public Set<Webtoon> recommendWebtoon(String userName, int K) {
 
         Account loginUser = accountRepository.findByUsername(userName)
