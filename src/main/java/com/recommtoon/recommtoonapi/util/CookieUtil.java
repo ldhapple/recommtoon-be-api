@@ -12,7 +12,7 @@ public class CookieUtil {
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setMaxAge(60 * 60 * 24 * 30);
-        //        cookie.setSecure(true); https 설정 후 활성화
+        cookie.setSecure(true); //https 설정 후 활성화
         return cookie;
     }
 
